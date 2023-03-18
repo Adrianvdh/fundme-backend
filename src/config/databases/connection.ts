@@ -1,3 +1,7 @@
+export type ConnectionDetails = {
+    [key: string]: any;
+};
+
 export abstract class DatabaseConnection {
-    protected constructor(public connection: any) {}
+    protected constructor(protected connectionDetails: ConnectionDetails) {}
 }

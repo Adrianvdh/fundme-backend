@@ -1,14 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
 import { User } from '@/modules/users/models/users.interface';
 import UserService from '@/modules/users/service/users.service';
-import { CreateUserRequest } from '@/modules/users/api/users.model';
+import { CreateUserRequest, UserResponse } from '@/modules/users/api/users.model';
 
 class UsersController {
     constructor(private userService: UserService) {}
 
     public getUsers = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const findAllUsersData: User[] = await this.userService.findAllUser();
+            const findAllUsersData: UserResponse[] = await this.userService.findAllUser();
 
             res.status(200).json({ data: findAllUsersData, message: 'findAll' });
         } catch (error) {
@@ -19,9 +19,9 @@ class UsersController {
     public getUserById = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const userId: string = req.params.id;
-            const findOneUserData: User = await this.userService.findUserById(userId);
+            const userResponse: UserResponse = await this.userService.findUserById(userId);
 
-            res.status(200).json({ data: findOneUserData, message: 'findOne' });
+            res.status(200).json({ data: userResponse, message: 'findOne' });
         } catch (error) {
             next(error);
         }
@@ -30,9 +30,9 @@ class UsersController {
     public createUser = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const userData: CreateUserRequest = req.body;
-            const createUserData: User = await this.userService.createUser(userData);
+            const userResponse: UserResponse = await this.userService.createUser(userData);
 
-            res.status(201).json({ data: createUserData, message: 'created' });
+            res.status(201).json({ data: userResponse, message: 'created' });
         } catch (error) {
             next(error);
         }
@@ -42,9 +42,9 @@ class UsersController {
         try {
             const userId: string = req.params.id;
             const userData: CreateUserRequest = req.body;
-            const updateUserData: User = await this.userService.updateUser(userId, userData);
+            const userResponse: UserResponse = await this.userService.updateUser(userId, userData);
 
-            res.status(200).json({ data: updateUserData, message: 'updated' });
+            res.status(200).json({ data: userResponse, message: 'updated' });
         } catch (error) {
             next(error);
         }
@@ -53,9 +53,9 @@ class UsersController {
     public deleteUser = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const userId: string = req.params.id;
-            const deleteUserData: User = await this.userService.deleteUser(userId);
+            await this.userService.deleteUser(userId);
 
-            res.status(200).json({ data: deleteUserData, message: 'deleted' });
+            res.status(200).json({ data: userId, message: 'deleted' });
         } catch (error) {
             next(error);
         }

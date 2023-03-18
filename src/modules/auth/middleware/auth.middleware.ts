@@ -15,7 +15,7 @@ const authMiddleware = (userRepository: UserRepository) => {
                 const secretKey: string = SECRET_KEY;
                 const verificationResponse = (await verify(Authorization, secretKey)) as DataStoredInToken;
                 const userId = verificationResponse._id;
-                const findUser = await userRepository.findOne({ userId });
+                const findUser = await userRepository.findOneById(userId);
 
                 if (findUser) {
                     req.user = findUser;

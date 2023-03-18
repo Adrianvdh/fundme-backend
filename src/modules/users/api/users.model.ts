@@ -7,3 +7,8 @@ export class CreateUserRequest {
     @IsString()
     public password: string;
 }
+
+export interface UserResponse {
+    _id: string;
+    email: string;
+}

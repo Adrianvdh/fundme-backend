@@ -1,35 +1,49 @@
+import * as mongodb from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { IUserRepository } from '@/modules/users/repository/IUserRepository';
 import { User } from '@/modules/users/models/users.interface';
-import * as mongodb from 'mongodb';
-import { Filter } from '@/config/databases/types';
-import { DatabaseConnection } from '@/config/databases/connection';
-import { CreateUserRequest } from '@/modules/users/api/users.model';
 import { MongoConnection } from '@/config/databases/mongodb';
+import { Filter } from '@/config/databases/types';
 
 export class UserRepository implements IUserRepository {
     private readonly users: mongodb.Collection<User>;
 
-    constructor(databaseConnection: DatabaseConnection) {
-        this.users = (databaseConnection as MongoConnection).connection.collection<User>('user');
+    constructor(private databaseConnection: MongoConnection) {
+        this.users = this.databaseConnection.db.collection<User>('users');
     }
 
-    create(create: CreateUserRequest): Promise<User> {
-        return Promise.resolve(undefined);
+    async find(filter: Filter): Promise<User> {
+        return await this.users.findOne(filter);
     }
 
-    deleteOne(objectId: string): Promise<User> {
-        return Promise.resolve(undefined);
+    async findOneById(userId: string): Promise<User> {
+        return await this.users.findOne({ _id: new ObjectId(userId) });
     }
 
-    findAll(): Promise<User[]> {
-        return Promise.resolve([]);
+    async findOneByEmail(email: string): Promise<User> {
+        return await this.users.findOne({ email });
     }
 
-    findOne(filter: Filter): Promise<User> {
-        return Promise.resolve(undefined);
+    async findAll(): Promise<User[]> {
+        return await this.users.find().toArray();
     }
 
-    updateOne(filter: Filter): Promise<User> {
-        return Promise.resolve(undefined);
+    async create(user: User): Promise<User> {
+        const result = await this.users.insertOne(user);
+        return { _id: result.insertedId, ...user };
+    }
+
+    async updateOne(userId: string, user: User): Promise<User> {
+        const update = {
+            $set: {
+                email: user.email,
+            },
+        };
+        await this.users.updateOne({ _id: new ObjectId(userId) }, update);
+        return { _id: new ObjectId(userId), ...user };
+    }
+
+    async deleteOne(userId: string): Promise<void> {
+        await this.users.deleteOne({ _id: new ObjectId(userId) });
     }
 }

@@ -4,7 +4,7 @@ import { isEmpty } from '@/shared/utils/util';
 import { IUserRepository } from '@/modules/users/repository/IUserRepository';
 import { CreateUserRequest } from '@/modules/users/api/users.model';
 import { User } from '@/modules/users/models/users.interface';
-import { LoginRequest } from '@/modules/auth/api/auth.models';
+import { LoginRequest, TokenData } from "@/modules/auth/api/auth.models";
 import { AlreadyExists, BaseException, IllegalArgument, NotFound } from '@/shared/exceptions/exceptions';
 import { Authenticator } from '@/modules/auth/service/authenticator';
 
@@ -22,7 +22,7 @@ class AuthService {
             throw new IllegalArgument('userData is empty');
         }
 
-        const findUser: User = await this.userRepository.findOne({ email: userData.email });
+        const findUser: User = await this.userRepository.findOneByEmail(userData.email);
         if (findUser) {
             throw new AlreadyExists(userData.email, `This email ${userData.email} already exists`);
         }
@@ -31,12 +31,12 @@ class AuthService {
         return await this.userRepository.create({ ...userData, password: hashedPassword });
     }
 
-    public async login(userData: LoginRequest): Promise<{ cookie: string; findUser: User }> {
+    public async login(userData: LoginRequest): Promise<{ tokenData: TokenData; cookie: string }> {
         if (isEmpty(userData)) {
             throw new IllegalArgument('userData is empty');
         }
 
-        const findUser: User = await this.userRepository.findOne({ email: userData.email });
+        const findUser: User = await this.userRepository.findOneByEmail(userData.email);
         if (!findUser) {
             throw new AuthenticationException(`Username or password did not match!`);
         }
@@ -50,7 +50,7 @@ class AuthService {
         const tokenData = authenticator.createToken(findUser);
         const cookie = authenticator.createCookie(tokenData);
 
-        return { cookie, findUser };
+        return { tokenData, cookie };
     }
 
     public async logout(userData: User): Promise<User> {
@@ -58,7 +58,7 @@ class AuthService {
             throw new HttpException(400, 'userData is empty');
         }
 
-        const findUser: User = await this.userRepository.findOne({ email: userData.email, password: userData.password });
+        const findUser: User = await this.userRepository.find({ email: userData.email, password: userData.password });
         if (!findUser) {
             throw new NotFound("User doesn't exist");
         }
