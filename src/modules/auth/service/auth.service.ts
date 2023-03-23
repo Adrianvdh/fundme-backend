@@ -1,11 +1,10 @@
 import { compare, hash } from 'bcrypt';
-import { HttpException } from '@/shared/http/exceptions/HttpException';
 import { isEmpty } from '@/shared/utils/util';
 import { IUserRepository } from '@/modules/users/repository/IUserRepository';
-import { CreateUserRequest } from '@/modules/users/api/users.model';
+import { CreateUserRequest, UserResponse } from "@/modules/users/api/users.model";
 import { User } from '@/modules/users/models/users.interface';
-import { LoginRequest, TokenData } from "@/modules/auth/api/auth.models";
-import { AlreadyExists, BaseException, IllegalArgument, NotFound } from '@/shared/exceptions/exceptions';
+import { LoginRequest, TokenData } from '@/modules/auth/api/auth.models';
+import { BaseException, IllegalArgument, NotFound, ValidationError } from '@/shared/exceptions/exceptions';
 import { Authenticator } from '@/modules/auth/service/authenticator';
 
 export class AuthenticationException extends BaseException {
@@ -17,18 +16,22 @@ export class AuthenticationException extends BaseException {
 class AuthService {
     constructor(private userRepository: IUserRepository) {}
 
-    public async signup(userData: CreateUserRequest): Promise<User> {
+    public async signup(userData: CreateUserRequest): Promise<UserResponse> {
         if (isEmpty(userData)) {
-            throw new IllegalArgument('userData is empty');
+            throw new ValidationError('Empty request!');
         }
 
         const findUser: User = await this.userRepository.findOneByEmail(userData.email);
         if (findUser) {
-            throw new AlreadyExists(userData.email, `This email ${userData.email} already exists`);
+            throw new ValidationError({ email: `This email ${userData.email} already exists` });
         }
 
         const hashedPassword = await hash(userData.password, 10);
-        return await this.userRepository.create({ ...userData, password: hashedPassword });
+        const user = await this.userRepository.create({ ...userData, password: hashedPassword });
+        return {
+            _id: user._id.toString(),
+            email: user.email,
+        };
     }
 
     public async login(userData: LoginRequest): Promise<{ tokenData: TokenData; cookie: string }> {
@@ -55,7 +58,7 @@ class AuthService {
 
     public async logout(userData: User): Promise<User> {
         if (isEmpty(userData)) {
-            throw new HttpException(400, 'userData is empty');
+            throw new ValidationError('Empty request!');
         }
 
         const findUser: User = await this.userRepository.find({ email: userData.email, password: userData.password });

@@ -2,7 +2,7 @@ import { hash } from 'bcrypt';
 import { User } from '@/modules/users/models/users.interface';
 import { isEmpty } from '@/shared/utils/util';
 import { IUserRepository } from '@/modules/users/repository/IUserRepository';
-import { AlreadyExists, IllegalArgument, NotFound } from '@/shared/exceptions/exceptions';
+import { IllegalArgument, NotFound, ValidationError } from '@/shared/exceptions/exceptions';
 import { CreateUserRequest, UserResponse } from '@/modules/users/api/users.model';
 
 class UserService {
@@ -38,7 +38,7 @@ class UserService {
 
         const findUser: User = await this.userRepository.findOneByEmail(userData.email);
         if (findUser) {
-            throw new AlreadyExists(userData.email, `This email ${userData.email} already exists`);
+            throw new ValidationError({ email: `This email ${userData.email} already exists` });
         }
 
         const hashedPassword = await hash(userData.password, 10);
@@ -57,7 +57,7 @@ class UserService {
         if (userData.email) {
             const findUser: User = await this.userRepository.findOneByEmail(userData.email);
             if (findUser && findUser._id.toString() != userId) {
-                throw new AlreadyExists(userData.email, `This email ${userData.email} already exists`);
+                throw new ValidationError({ email: `This email ${userData.email} already exists` });
             }
         }
 
