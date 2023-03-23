@@ -8,12 +8,14 @@ import morgan from 'morgan';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import { CREDENTIALS, LOG_FORMAT, NODE_ENV, ORIGIN, PORT } from '@config';
-import errorMiddleware from '@/shared/http/middlewares/error.middleware';
 import { logger, stream } from '@/shared/utils/logger';
 import { Module } from './shared/framework/module';
 import { Constructable } from '@/shared/types';
 import { MongoConfig } from '@/config/databases/mongodb';
 import { DatabaseConnection } from '@/config/databases/connection';
+import internalServerErrorMiddleware from '@/shared/exceptions/handlers/internal-server-error.middleware';
+import validationErrorMiddleware from '@/shared/exceptions/handlers/validation-error.middleware';
+import baseErrorMiddleware from '@/shared/exceptions/handlers/base-error.middleware';
 
 class App {
     public app: express.Application;
@@ -83,7 +85,9 @@ class App {
     }
 
     private initializeErrorHandling() {
-        this.app.use(errorMiddleware);
+        this.app.use(baseErrorMiddleware);
+        this.app.use(validationErrorMiddleware);
+        this.app.use(internalServerErrorMiddleware);
     }
 }
 
