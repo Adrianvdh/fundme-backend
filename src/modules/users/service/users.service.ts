@@ -2,7 +2,7 @@ import { hash } from 'bcrypt';
 import { User } from '@/modules/users/models/users.interface';
 import { isEmpty } from '@/shared/utils/util';
 import { IUserRepository } from '@/modules/users/repository/IUserRepository';
-import { NotFound, ValidationError } from '@/shared/exceptions/exceptions';
+import { AlreadyExists, IllegalArgument, NotFound } from '@/shared/exceptions/exceptions';
 import { CreateUserRequest, UserResponse } from '@/modules/users/api/users.model';
 
 class UserService {
@@ -17,7 +17,7 @@ class UserService {
 
     public async findUserById(userId: string): Promise<UserResponse> {
         if (isEmpty(userId)) {
-            throw new ValidationError('Empty request!');
+            throw new IllegalArgument('UserId is empty');
         }
 
         const user: User = await this.userRepository.findOneById(userId);
@@ -33,12 +33,12 @@ class UserService {
 
     public async createUser(userData: CreateUserRequest): Promise<UserResponse> {
         if (isEmpty(userData)) {
-            throw new ValidationError('Empty request!');
+            throw new IllegalArgument('userData is empty');
         }
 
         const findUser: User = await this.userRepository.findOneByEmail(userData.email);
         if (findUser) {
-            throw new ValidationError({ email: `This email ${userData.email} already exists` });
+            throw new AlreadyExists(userData.email, `This email ${userData.email} already exists`);
         }
 
         const hashedPassword = await hash(userData.password, 10);
@@ -51,13 +51,13 @@ class UserService {
 
     public async updateUser(userId: string, userData: CreateUserRequest): Promise<UserResponse> {
         if (isEmpty(userData)) {
-            throw new ValidationError('Empty request!');
+            throw new IllegalArgument('userData is empty');
         }
 
         if (userData.email) {
             const findUser: User = await this.userRepository.findOneByEmail(userData.email);
             if (findUser && findUser._id.toString() != userId) {
-                throw new ValidationError({ email: `This email ${userData.email} already exists` });
+                throw new AlreadyExists(userData.email, `This email ${userData.email} already exists`);
             }
         }
 

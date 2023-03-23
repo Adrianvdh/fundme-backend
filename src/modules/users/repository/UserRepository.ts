@@ -4,13 +4,12 @@ import { IUserRepository } from '@/modules/users/repository/IUserRepository';
 import { User } from '@/modules/users/models/users.interface';
 import { MongoConnection } from '@/config/databases/mongodb';
 import { Filter } from '@/config/databases/types';
-import { DatabaseConnection } from '@/config/databases/connection';
 
 export class UserRepository implements IUserRepository {
     private readonly users: mongodb.Collection<User>;
 
-    constructor(private databaseConnection: DatabaseConnection) {
-        this.users = (this.databaseConnection as MongoConnection).db.collection<User>('users');
+    constructor(private databaseConnection: MongoConnection) {
+        this.users = this.databaseConnection.db.collection<User>('users');
     }
 
     async find(filter: Filter): Promise<User> {
