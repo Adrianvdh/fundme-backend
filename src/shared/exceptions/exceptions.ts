@@ -1,18 +1,10 @@
 export class BaseException extends Error {
-    public statusCode: number;
+    public statusCode = 400;
     public message: string;
 
     constructor(message: string) {
         super(message);
         this.message = message;
-    }
-}
-
-export class Unauthenticated extends BaseException {
-    public statusCode = 401;
-    constructor(message?: string) {
-        message = message || "You aren't authenticated please log in!";
-        super(message);
     }
 }
 
@@ -30,7 +22,7 @@ export class ValidationError extends BaseException {
         this.errors = error;
     }
 
-    public toDict() {
+    public toJson() {
         return {
             message: this.message,
             errors: this.errors,
@@ -38,13 +30,16 @@ export class ValidationError extends BaseException {
     }
 }
 
-export class IllegalArgument extends BaseException {
-    constructor(message: string) {
+export class Unauthenticated extends BaseException {
+    public statusCode = 401;
+    constructor(message?: string) {
+        message = message || "You aren't authenticated please log in!";
         super(message);
     }
 }
 
 export class NotFound extends BaseException {
+    public statusCode = 404;
     constructor(message: string) {
         super(message);
     }

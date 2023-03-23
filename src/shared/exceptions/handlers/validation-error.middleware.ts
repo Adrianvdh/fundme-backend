@@ -6,7 +6,7 @@ const validationErrorMiddleware = (error: ValidationError, req: Request, res: Re
     try {
         if (error instanceof ValidationError) {
             logger.error(`[${req.method}] ${req.path} >> ${JSON.stringify(error.errors)}`);
-            res.status(400).json(error.toDict());
+            res.status(error.statusCode).json(error.toJson());
         } else {
             next(error);
         }

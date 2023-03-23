@@ -14,8 +14,8 @@ import { Constructable } from '@/shared/types';
 import { MongoConfig } from '@/config/databases/mongodb';
 import { DatabaseConnection } from '@/config/databases/connection';
 import internalServerErrorMiddleware from '@/shared/exceptions/handlers/internal-server-error.middleware';
-import authenticationErrorMiddleware from '@/shared/exceptions/handlers/authentication-error.middleware';
 import validationErrorMiddleware from '@/shared/exceptions/handlers/validation-error.middleware';
+import baseErrorMiddleware from '@/shared/exceptions/handlers/base-error.middleware';
 
 class App {
     public app: express.Application;
@@ -85,7 +85,7 @@ class App {
     }
 
     private initializeErrorHandling() {
-        this.app.use(authenticationErrorMiddleware);
+        this.app.use(baseErrorMiddleware);
         this.app.use(validationErrorMiddleware);
         this.app.use(internalServerErrorMiddleware);
     }

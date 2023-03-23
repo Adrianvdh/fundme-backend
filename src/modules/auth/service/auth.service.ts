@@ -1,10 +1,10 @@
 import { compare, hash } from 'bcrypt';
 import { isEmpty } from '@/shared/utils/util';
 import { IUserRepository } from '@/modules/users/repository/IUserRepository';
-import { CreateUserRequest, UserResponse } from "@/modules/users/api/users.model";
+import { CreateUserRequest, UserResponse } from '@/modules/users/api/users.model';
 import { User } from '@/modules/users/models/users.interface';
 import { LoginRequest, TokenData } from '@/modules/auth/api/auth.models';
-import { BaseException, IllegalArgument, NotFound, ValidationError } from '@/shared/exceptions/exceptions';
+import { BaseException, NotFound, ValidationError } from '@/shared/exceptions/exceptions';
 import { Authenticator } from '@/modules/auth/service/authenticator';
 
 export class AuthenticationException extends BaseException {
@@ -36,7 +36,7 @@ class AuthService {
 
     public async login(userData: LoginRequest): Promise<{ tokenData: TokenData; cookie: string }> {
         if (isEmpty(userData)) {
-            throw new IllegalArgument('userData is empty');
+            throw new ValidationError('Empty request!');
         }
 
         const findUser: User = await this.userRepository.findOneByEmail(userData.email);
@@ -54,19 +54,6 @@ class AuthService {
         const cookie = authenticator.createCookie(tokenData);
 
         return { tokenData, cookie };
-    }
-
-    public async logout(userData: User): Promise<User> {
-        if (isEmpty(userData)) {
-            throw new ValidationError('Empty request!');
-        }
-
-        const findUser: User = await this.userRepository.find({ email: userData.email, password: userData.password });
-        if (!findUser) {
-            throw new NotFound("User doesn't exist");
-        }
-
-        return findUser;
     }
 }
 

@@ -2,7 +2,7 @@ import { hash } from 'bcrypt';
 import { User } from '@/modules/users/models/users.interface';
 import { isEmpty } from '@/shared/utils/util';
 import { IUserRepository } from '@/modules/users/repository/IUserRepository';
-import { IllegalArgument, NotFound, ValidationError } from '@/shared/exceptions/exceptions';
+import { NotFound, ValidationError } from '@/shared/exceptions/exceptions';
 import { CreateUserRequest, UserResponse } from '@/modules/users/api/users.model';
 
 class UserService {
@@ -17,7 +17,7 @@ class UserService {
 
     public async findUserById(userId: string): Promise<UserResponse> {
         if (isEmpty(userId)) {
-            throw new IllegalArgument('UserId is empty');
+            throw new ValidationError('Empty request!');
         }
 
         const user: User = await this.userRepository.findOneById(userId);
@@ -33,7 +33,7 @@ class UserService {
 
     public async createUser(userData: CreateUserRequest): Promise<UserResponse> {
         if (isEmpty(userData)) {
-            throw new IllegalArgument('userData is empty');
+            throw new ValidationError('Empty request!');
         }
 
         const findUser: User = await this.userRepository.findOneByEmail(userData.email);
@@ -51,7 +51,7 @@ class UserService {
 
     public async updateUser(userId: string, userData: CreateUserRequest): Promise<UserResponse> {
         if (isEmpty(userData)) {
-            throw new IllegalArgument('userData is empty');
+            throw new ValidationError('Empty request!');
         }
 
         if (userData.email) {
