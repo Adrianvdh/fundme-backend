@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from 'express';
-import { User } from '@/modules/users/models/users.interface';
 import UserService from '@/modules/users/service/users.service';
 import { CreateUserRequest, UserResponse } from '@/modules/users/api/users.model';
 
@@ -10,7 +9,7 @@ class UsersController {
         try {
             const findAllUsersData: UserResponse[] = await this.userService.findAllUser();
 
-            res.status(200).json({ data: findAllUsersData, message: 'findAll' });
+            res.status(200).json(findAllUsersData);
         } catch (error) {
             next(error);
         }
@@ -21,7 +20,7 @@ class UsersController {
             const userId: string = req.params.id;
             const userResponse: UserResponse = await this.userService.findUserById(userId);
 
-            res.status(200).json({ data: userResponse, message: 'findOne' });
+            res.status(200).json(userResponse);
         } catch (error) {
             next(error);
         }
@@ -32,7 +31,7 @@ class UsersController {
             const userData: CreateUserRequest = req.body;
             const userResponse: UserResponse = await this.userService.createUser(userData);
 
-            res.status(201).json({ data: userResponse, message: 'created' });
+            res.status(201).json(userResponse);
         } catch (error) {
             next(error);
         }
@@ -44,7 +43,7 @@ class UsersController {
             const userData: CreateUserRequest = req.body;
             const userResponse: UserResponse = await this.userService.updateUser(userId, userData);
 
-            res.status(200).json({ data: userResponse, message: 'updated' });
+            res.status(200).json(userResponse);
         } catch (error) {
             next(error);
         }
@@ -55,7 +54,7 @@ class UsersController {
             const userId: string = req.params.id;
             await this.userService.deleteUser(userId);
 
-            res.status(200).json({ data: userId, message: 'deleted' });
+            res.status(200).json({ userId });
         } catch (error) {
             next(error);
         }

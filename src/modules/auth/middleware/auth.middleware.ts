@@ -1,9 +1,9 @@
 import { NextFunction, Response } from 'express';
 import { verify } from 'jsonwebtoken';
 import { SECRET_KEY } from '@config';
-import { HttpException } from '@/shared/http/exceptions/HttpException';
 import { UserRepository } from '@/modules/users/repository/UserRepository';
 import { DataStoredInToken, RequestWithUser } from '@/modules/auth/api/auth.models';
+import { Unauthenticated } from '@/shared/exceptions/exceptions';
 
 const authMiddleware = (userRepository: UserRepository) => {
     return async (req: RequestWithUser, res: Response, next: NextFunction) => {
@@ -21,15 +21,15 @@ const authMiddleware = (userRepository: UserRepository) => {
                     req.user = findUser;
                     next();
                 } else {
-                    next(new HttpException(401, 'Wrong authentication token'));
+                    next(new Unauthenticated());
                 }
             } else {
-                next(new HttpException(404, 'Authentication token missing'));
+                next(new Unauthenticated());
             }
         } catch (error) {
-            next(new HttpException(401, 'Wrong authentication token'));
+            next(new Unauthenticated());
         }
     };
-}
+};
 
 export default authMiddleware;
