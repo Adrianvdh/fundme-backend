@@ -4,7 +4,7 @@ import { NextFunction, Request, RequestHandler, Response } from 'express';
 import { Constructable } from '@/shared/types';
 import { ValidationError } from '@/shared/exceptions/exceptions';
 
-const validateBodyMiddleware = (
+const validated = (
     type: Constructable<any>,
     value: string | 'body' | 'query' | 'params' = 'body',
     skipMissingProperties = false,
@@ -30,4 +30,4 @@ const validateBodyMiddleware = (
     };
 };
 
-export default validateBodyMiddleware;
+export default validated;
