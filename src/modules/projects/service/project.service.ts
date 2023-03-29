@@ -1,5 +1,5 @@
 import { isEmpty } from '@/shared/utils/util';
-import { NotFound, ValidationError } from '@/shared/exceptions/exceptions';
+import { NotFound, ServiceException, ValidationError } from '@/shared/exceptions/exceptions';
 import { IProjectRepository } from '@/modules/projects/repository/IProjectRepository';
 import {
     mapProjectToProjectResponse,
@@ -12,23 +12,28 @@ import { IStorageService } from '@/shared/storage/storage';
 import { File } from '@/shared/http/file';
 
 class ProjectService {
-    constructor(private projectRepository: IProjectRepository, private storageService: IStorageService) {}
+    constructor(private projectRepository: IProjectRepository, private storageService: IStorageService) {
+    }
 
     public async findAllProjects(): Promise<ProjectResponse[]> {
         return (await this.projectRepository.findAll()).map(project => mapProjectToProjectResponse(project));
     }
 
     public async findProjectById(projectId: string): Promise<ProjectResponse> {
-        if (isEmpty(projectId)) {
-            throw new ValidationError('Empty request!');
-        }
+        try {
+            if (isEmpty(projectId)) {
+                throw new ValidationError('Empty request!');
+            }
 
-        const project: Project = await this.projectRepository.findOneById(projectId);
-        if (!project) {
-            throw new NotFound("Project doesn't exist");
-        }
+            const project: Project = await this.projectRepository.findOneById(projectId);
+            if (!project) {
+                throw new NotFound('Project doesn\'t exist');
+            }
 
-        return mapProjectToProjectResponse(project);
+            return mapProjectToProjectResponse(project);
+        } catch (e) {
+            throw new ServiceException('Project service error method findProjectById', e.message);
+        }
     }
 
     public async findLatestIncomplete(userId: string): Promise<ProjectResponse> {
@@ -44,16 +49,19 @@ class ProjectService {
     }
 
     public async createProject(ownerId: string, file: File): Promise<ProjectResponse> {
-        const result = await this.storageService.uploadFile('projects', 'image', file.buffer);
+        if (isEmpty(ownerId)) {
+            throw new ValidationError('You need to be logged in first!');
+        }
+        const result = await this.storageService.uploadFile('projects', 'image', file.buffer());
 
         const image = {
             url: result.relativePath(),
-            fileType: file.mimetype,
+            fileType: file.mimeType()
         };
         const project = await this.projectRepository.create(ownerId, {
             image,
             published: false,
-            status: ProjectStatus.COVER_UPLOADED,
+            status: ProjectStatus.COVER_UPLOADED
         });
         return mapProjectToProjectResponse(project);
     }
@@ -65,7 +73,7 @@ class ProjectService {
 
         const project = await this.projectRepository.updateProjectDetails(projectId, {
             ...projectDetails,
-            status: ProjectStatus.CAPTURED_PROJECT_DETAILS,
+            status: ProjectStatus.CAPTURED_PROJECT_DETAILS
         });
         return mapProjectToProjectResponse(project);
     }
@@ -75,7 +83,12 @@ class ProjectService {
             throw new ValidationError('Empty request!');
         }
 
-        const project = await this.projectRepository.updateFundGoal(projectId, { ...projectDetails, status: ProjectStatus.SET_FUND_GOAL });
+        const project1 = {
+            targetGoal: projectDetails.targetGoal,
+            endDate: new Date(projectDetails.endDate),
+            status: ProjectStatus.SET_FUND_GOAL
+        };
+        const project = await this.projectRepository.updateFundGoal(projectId, project1);
         return mapProjectToProjectResponse(project);
     }
 
@@ -84,14 +97,17 @@ class ProjectService {
         //  1. Compile contract
         //  2. Deploy contract
         //  3. Mint NFT
-        const project = await this.projectRepository.updatePublishState(projectId, { published: true, status: ProjectStatus.PUBLISHED });
+        const project = await this.projectRepository.updatePublishState(projectId, {
+            published: true,
+            status: ProjectStatus.PUBLISHED
+        });
         return mapProjectToProjectResponse(project);
     }
 
     public async deleteProject(projectId: string): Promise<void> {
         const project: Project = await this.projectRepository.findOneById(projectId);
         if (!project) {
-            throw new NotFound("Project doesn't exist");
+            throw new NotFound('Project doesn\'t exist');
         }
 
         await this.projectRepository.deleteOne(projectId);

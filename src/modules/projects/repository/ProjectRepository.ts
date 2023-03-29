@@ -1,7 +1,7 @@
 import * as mongodb from 'mongodb';
 import { ObjectId } from 'mongodb';
 import { MongoConnection } from '@/config/databases/mongodb';
-import { Filter } from '@/config/databases/types';
+import { MongoDict } from '@/config/databases/types';
 import { DatabaseConnection } from '@/config/databases/connection';
 import { Project, ProjectDetails, ProjectFundGoal, ProjectPublishState } from '@/modules/projects/models/project.interface';
 import { IProjectRepository } from '@/modules/projects/repository/IProjectRepository';
@@ -14,7 +14,7 @@ export class ProjectRepository implements IProjectRepository {
         this.projects = (this.databaseConnection as MongoConnection).db.collection<Project>('projects');
     }
 
-    async find(filter: Filter): Promise<Project> {
+    async find(filter: MongoDict): Promise<Project> {
         return await this.projects.findOne(filter);
     }
 
@@ -22,8 +22,10 @@ export class ProjectRepository implements IProjectRepository {
         return await this.projects.findOne({ _id: new ObjectId(projectId) });
     }
 
-    async findOneLatestIncompleteByOwnerId(ownerId: string): Promise<Project> {
-        return Promise.resolve(undefined);
+    async findOneLatestIncompleteByOwnerId(ownerId: string): Promise<Project | null> {
+        const filter = { ownerId: new ObjectId(ownerId) };
+        const array = await this.projects.find(filter).sort({ modified: -1 }).limit(1).toArray();
+        return array.length > 0 ? array[0] : null;
     }
 
     async findAll(): Promise<Project[]> {
@@ -47,6 +49,8 @@ export class ProjectRepository implements IProjectRepository {
             status: project.status,
             ownerId: new ObjectId(ownerId),
             contributors: [],
+            created: new Date(),
+            modified: new Date(),
         };
         const result = await this.projects.insertOne(projectDocument);
         if (!result.insertedId) {
@@ -56,23 +60,38 @@ export class ProjectRepository implements IProjectRepository {
     }
 
     async updateProjectDetails(projectId: string, project: ProjectDetails): Promise<Project> {
-        return await this.updateProject<ProjectDetails>(project, projectId);
-    }
-
-    async updateFundGoal(projectId: string, project: ProjectFundGoal): Promise<Project> {
-        return await this.updateProject<ProjectFundGoal>(project, projectId);
-    }
-
-    async updatePublishState(projectId: string, project: ProjectPublishState): Promise<Project> {
-        return await this.updateProject<ProjectPublishState>(project, projectId);
-    }
-
-    private async updateProject<T>(project: T, projectId: string) {
         const update = {
             $set: {
                 ...project,
+                modified: new Date(),
             },
         };
+        return await this.updateProject(projectId, update);
+    }
+
+    async updateFundGoal(projectId: string, project: ProjectFundGoal): Promise<Project> {
+        const update = {
+            $set: {
+                'fundGoal.targetGoal': project.targetGoal,
+                endDate: project.endDate,
+                status: project.status,
+                modified: new Date(),
+            },
+        };
+        return await this.updateProject(projectId, update);
+    }
+
+    async updatePublishState(projectId: string, project: ProjectPublishState): Promise<Project> {
+        const update = {
+            $set: {
+                ...project,
+                modified: new Date(),
+            },
+        };
+        return await this.updateProject(projectId, update);
+    }
+
+    private async updateProject(projectId: string, update: MongoDict) {
         const result = await this.projects.updateOne({ _id: new ObjectId(projectId) }, update);
         if (result.modifiedCount === 0) {
             throw new MongoException('Failed to update the project!');

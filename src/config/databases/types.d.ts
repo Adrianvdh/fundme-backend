@@ -1,4 +1,4 @@
-export type Filter = {
+export type MongoDict = {
     [key: string]:
         | any
         | {

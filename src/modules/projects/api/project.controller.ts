@@ -3,6 +3,7 @@ import ProjectService from '@/modules/projects/service/project.service';
 import { ProjectResponse, SaveProjectDetailsRequest, SaveProjectFundGoalRequest } from '@/modules/projects/api/project.model';
 import { RequestWithUser } from '@/modules/auth/api/auth.models';
 import { File } from '@/shared/http/file';
+import { HttpResponse } from '@/shared/http/httpResponse';
 
 class ProjectController {
     constructor(private projectService: ProjectService) {}
@@ -22,7 +23,7 @@ class ProjectController {
             const projectId: string = req.params.id;
             const projectResponse: ProjectResponse = await this.projectService.findProjectById(projectId);
 
-            res.status(200).json(projectResponse);
+            return HttpResponse.ok(res, projectResponse);
         } catch (error) {
             next(error);
         }
@@ -32,9 +33,9 @@ class ProjectController {
         try {
             const projectResponse: ProjectResponse = await this.projectService.findLatestIncomplete(req.userId);
             if (!projectResponse) {
-                return res.status(204);
+                return HttpResponse.noContent(res);
             }
-            res.status(200).json(projectResponse);
+            return HttpResponse.ok(res, projectResponse);
         } catch (error) {
             next(error);
         }
@@ -42,10 +43,10 @@ class ProjectController {
 
     public createProject = async (req: RequestWithUser, res: Response, next: NextFunction) => {
         try {
-            const file = new File(req.file.buffer, req.file.mimetype);
-            const response: ProjectResponse = await this.projectService.createProject(req.userId, file);
+            const file = new File(req.file);
+            const projectResponse: ProjectResponse = await this.projectService.createProject(req.userId, file);
 
-            res.status(201).json(response);
+            return HttpResponse.ok(res, projectResponse);
         } catch (error) {
             next(error);
         }
@@ -57,7 +58,7 @@ class ProjectController {
             const requestData: SaveProjectDetailsRequest = req.body;
             const projectResponse: ProjectResponse = await this.projectService.saveProjectDetails(projectId, requestData);
 
-            res.status(200).json(projectResponse);
+            return HttpResponse.ok(res, projectResponse);
         } catch (error) {
             next(error);
         }
@@ -69,7 +70,7 @@ class ProjectController {
             const requestData: SaveProjectFundGoalRequest = req.body;
             const projectResponse: ProjectResponse = await this.projectService.saveFundGoal(projectId, requestData);
 
-            res.status(200).json(projectResponse);
+            return HttpResponse.ok(res, projectResponse);
         } catch (error) {
             next(error);
         }
@@ -80,7 +81,7 @@ class ProjectController {
             const projectId: string = req.params.id;
             const projectResponse: ProjectResponse = await this.projectService.publishProject(projectId);
 
-            res.status(200).json(projectResponse);
+            return HttpResponse.ok(res, projectResponse);
         } catch (error) {
             next(error);
         }
@@ -91,7 +92,7 @@ class ProjectController {
             const projectId: string = req.params.id;
             await this.projectService.deleteProject(projectId);
 
-            res.status(200).json({ projectId });
+            return HttpResponse.noContent(res);
         } catch (error) {
             next(error);
         }

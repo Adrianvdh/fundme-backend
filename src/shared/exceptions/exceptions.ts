@@ -45,6 +45,13 @@ export class NotFound extends BaseException {
     }
 }
 
+export class ServiceException extends BaseException {
+    public statusCode = 500;
+    constructor(message: string, error: string) {
+        super(message + '\n ' + error);
+    }
+}
+
 export class MongoException extends BaseException {
     public statusCode = 500;
     constructor(message: string) {

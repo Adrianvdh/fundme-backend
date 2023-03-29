@@ -18,9 +18,12 @@ class ProjectRoutes implements Routes {
 
     private initializeRoutes() {
         this.router.get(`${this.path}`, this.projectController.getProjects);
-        this.router.get(`${this.path}/:id`, this.projectController.getProjectById);
-        this.router.get(`${this.path}/latest-incomplete`, authenticated(this.userRepository), this.projectController.getLatestIncomplete);
         this.router.post(`${this.path}`, authenticated(this.userRepository), singleFileUpload(), this.projectController.createProject);
+        this.router.get(`${this.path}/latest-incomplete`, authenticated(this.userRepository), this.projectController.getLatestIncomplete);
+
+        this.router.get(`${this.path}/:id`, this.projectController.getProjectById);
+        this.router.delete(`${this.path}/:id`, authenticated(this.userRepository), this.projectController.deleteProject);
+
         this.router.put(
             `${this.path}/:id/project-details`,
             authenticated(this.userRepository),
@@ -34,7 +37,6 @@ class ProjectRoutes implements Routes {
             this.projectController.saveFundGoal,
         );
         this.router.put(`${this.path}/:id/publish`, authenticated(this.userRepository), this.projectController.publishProject);
-        this.router.delete(`${this.path}/:id`, authenticated(this.userRepository), this.projectController.deleteProject);
     }
 }
 

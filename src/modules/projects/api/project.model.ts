@@ -1,24 +1,21 @@
 import { Project, ProjectStatus } from '@/modules/projects/models/project.interface';
 import { ObjectId } from 'mongodb';
-
-export class CreateProjectRequest {
-    image: {
-        url: string;
-        fileType: string;
-    };
-}
+import { IsISO8601, IsNumberString, IsString } from 'class-validator';
 
 export class SaveProjectDetailsRequest {
+    @IsString()
     title: string;
+
+    @IsString()
     description: string;
 }
 
 export class SaveProjectFundGoalRequest {
-    fundGoal: {
-        targetGoal: string;
-        actualAmount: string;
-        achieved: boolean;
-    };
+    @IsNumberString()
+    targetGoal: string;
+
+    @IsISO8601()
+    endDate: string;
 }
 
 export interface ProjectResponse {
@@ -41,6 +38,8 @@ export interface ProjectResponse {
     status: ProjectStatus;
     ownerId: ObjectId;
     contributors: Array<any>;
+    created: string;
+    modified: string;
 }
 
 export function mapProjectToProjectResponse(project: Project): ProjectResponse {
@@ -57,5 +56,7 @@ export function mapProjectToProjectResponse(project: Project): ProjectResponse {
         status: project?.status,
         ownerId: project?.ownerId,
         contributors: project.contributors,
+        created: project.created.toISOString(),
+        modified: project.modified.toISOString(),
     };
 }

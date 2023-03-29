@@ -20,13 +20,15 @@ export interface Project {
     status: ProjectStatus;
     ownerId: ObjectId;
     contributors: Array<any>;
+    created: Date;
+    modified: Date;
 }
 
 export type ProjectImage = Pick<Project, 'image' | 'published' | 'status'>;
 
 export type ProjectDetails = Pick<Project, 'title' | 'description' | 'status'>;
 
-export type ProjectFundGoal = Pick<Project, 'fundGoal' | 'status'>;
+export type ProjectFundGoal = Pick<Project, 'endDate' | 'status'> & Pick<Project['fundGoal'], 'targetGoal'>;
 
 export type ProjectPublishState = Pick<Project, 'published' | 'status'>;
 
