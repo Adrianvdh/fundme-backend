@@ -3,7 +3,13 @@ import { ObjectId } from 'mongodb';
 import { MongoConnection } from '@/config/databases/mongodb';
 import { MongoDict } from '@/config/databases/types';
 import { DatabaseConnection } from '@/config/databases/connection';
-import { Project, ProjectDetails, ProjectFundGoal, ProjectPublishState } from '@/modules/projects/models/project.interface';
+import {
+    Project,
+    ProjectDetails,
+    ProjectFundGoal,
+    ProjectPublishState,
+    ProjectStatus
+} from '@/modules/projects/models/project.interface';
 import { IProjectRepository } from '@/modules/projects/repository/IProjectRepository';
 import { MongoException } from '@/shared/exceptions/exceptions';
 
@@ -23,7 +29,12 @@ export class ProjectRepository implements IProjectRepository {
     }
 
     async findOneLatestIncompleteByOwnerId(ownerId: string): Promise<Project | null> {
-        const filter = { ownerId: new ObjectId(ownerId) };
+        const filter = {
+            ownerId: new ObjectId(ownerId),
+            status: {
+                $ne: ProjectStatus.PUBLISHED,
+            },
+        };
         const array = await this.projects.find(filter).sort({ modified: -1 }).limit(1).toArray();
         return array.length > 0 ? array[0] : null;
     }

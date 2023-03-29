@@ -47,7 +47,7 @@ class ProjectService {
         if (isEmpty(ownerId)) {
             throw new ValidationError('You need to be logged in first!');
         }
-        const result = await this.storageService.uploadFile('projects', 'image', file.buffer());
+        const result = await this.storageService.uploadFile('projects', 'image.png', file.buffer());
 
         const image = {
             url: result.relativePath(),
