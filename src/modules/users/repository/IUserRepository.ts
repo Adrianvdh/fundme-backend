@@ -1,8 +1,8 @@
 import { User } from '@/modules/users/models/users.interface';
-import { Filter } from '@/config/databases/types';
+import { MongoDict } from '@/config/databases/types';
 
 export interface IUserRepository {
-    find(filter: Filter): Promise<User>;
+    find(filter: MongoDict): Promise<User>;
 
     findOneById(userId: string): Promise<User>;
 

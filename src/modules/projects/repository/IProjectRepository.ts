@@ -1,8 +1,8 @@
-import { Filter } from '@/config/databases/types';
+import { MongoDict } from '@/config/databases/types';
 import { Project, ProjectDetails, ProjectFundGoal, ProjectImage, ProjectPublishState } from '@/modules/projects/models/project.interface';
 
 export interface IProjectRepository {
-    find(filter: Filter): Promise<Project>;
+    find(filter: MongoDict): Promise<Project>;
 
     findOneById(projectId: string): Promise<Project>;
 
