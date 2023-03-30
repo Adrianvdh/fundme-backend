@@ -11,4 +11,6 @@ export interface IStorageService {
     uploadFile(path: string, objectName: string, file: Buffer): Promise<IUploadResult>;
 
     downloadFile(path: string, objectName: string): Promise<IDownloadResult>;
+
+    getAbsolutePath(relativePath: string): Promise<string>;
 }

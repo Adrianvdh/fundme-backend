@@ -1,6 +1,7 @@
 import { Project, ProjectStatus } from '@/modules/projects/models/project.interface';
 import { ObjectId } from 'mongodb';
 import { IsISO8601, IsNumberString, IsString } from 'class-validator';
+import { IStorageService } from '@/shared/storage/storage';
 
 export class SaveProjectDetailsRequest {
     @IsString()
@@ -42,10 +43,14 @@ export interface ProjectResponse {
     modified: string;
 }
 
-export function mapProjectToProjectResponse(project: Project): ProjectResponse {
+export async function mapProjectToProjectResponse(project: Project, storageService: IStorageService): Promise<ProjectResponse> {
+    const url = await storageService.getAbsolutePath(project.image.url);
     return {
         _id: project._id.toString(),
-        image: project?.image,
+        image: {
+            ...project.image,
+            url: url,
+        },
         title: project?.title,
         description: project?.description,
         fundGoal: project?.fundGoal,

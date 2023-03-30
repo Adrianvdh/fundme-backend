@@ -2,15 +2,15 @@ import { IDownloadResult, IStorageService, IUploadResult } from '@/shared/storag
 
 export class UploadResult implements IUploadResult {
     fullPath(): string {
-        return '';
+        return 'https://ionic-docs-demo-v6.vercel.app/assets/madison.jpg';
     }
 
     mimeType(): string {
-        return '';
+        return 'image/jpeg';
     }
 
     relativePath(): string {
-        return '';
+        return 'assets/madison.jpg';
     }
 }
 
@@ -23,5 +23,9 @@ export class NoopStorageService implements IStorageService {
 
     downloadFile(path: string, objectName: string): Promise<IDownloadResult> {
         return Promise.resolve(new DownloadResult());
+    }
+
+    getAbsolutePath(relativePath: string): Promise<string> {
+        return Promise.resolve('https://ionic-docs-demo-v6.vercel.app/assets/madison.jpg');
     }
 }

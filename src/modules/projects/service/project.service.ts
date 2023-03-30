@@ -14,8 +14,8 @@ import { File } from '@/shared/http/file';
 class ProjectService {
     constructor(private projectRepository: IProjectRepository, private storageService: IStorageService) {}
 
-    public async findAllProjects(): Promise<ProjectResponse[]> {
-        return (await this.projectRepository.findAll()).map(project => mapProjectToProjectResponse(project));
+    public async findAllProjects(): Promise<Promise<ProjectResponse>[]> {
+        return (await this.projectRepository.findAll()).map(project => mapProjectToProjectResponse(project, this.storageService));
     }
 
     public async findProjectById(projectId: string): Promise<ProjectResponse> {
@@ -28,7 +28,7 @@ class ProjectService {
             throw new NotFound("Project doesn't exist");
         }
 
-        return mapProjectToProjectResponse(project);
+        return mapProjectToProjectResponse(project, this.storageService);
     }
 
     public async findLatestIncomplete(userId: string): Promise<ProjectResponse> {
@@ -38,7 +38,7 @@ class ProjectService {
 
         const project: Project = await this.projectRepository.findOneLatestIncompleteByOwnerId(userId);
         if (project) {
-            return mapProjectToProjectResponse(project);
+            return mapProjectToProjectResponse(project, this.storageService);
         }
         return null;
     }
@@ -49,19 +49,21 @@ class ProjectService {
         }
         const result = await this.storageService.uploadFile('projects', 'image.png', file.buffer());
 
-        const image = {
-            url: result.relativePath(),
-            fileType: file.mimeType(),
-        };
         const project = await this.projectRepository.create(ownerId, {
-            image,
+            image: {
+                url: result.relativePath(),
+                fileType: file.mimeType(),
+            },
             published: false,
             status: ProjectStatus.COVER_UPLOADED,
         });
-        return mapProjectToProjectResponse(project);
+        return mapProjectToProjectResponse(project, this.storageService);
     }
 
-    public async saveProjectDetails(projectId: string, projectDetails: SaveProjectDetailsRequest): Promise<ProjectResponse> {
+    public async saveProjectDetails(
+        projectId: string,
+        projectDetails: SaveProjectDetailsRequest,
+    ): Promise<ProjectResponse> {
         if (isEmpty(projectDetails)) {
             throw new ValidationError('Empty request!');
         }
@@ -70,7 +72,7 @@ class ProjectService {
             ...projectDetails,
             status: ProjectStatus.CAPTURED_PROJECT_DETAILS,
         });
-        return mapProjectToProjectResponse(project);
+        return mapProjectToProjectResponse(project, this.storageService);
     }
 
     public async saveFundGoal(projectId: string, projectDetails: SaveProjectFundGoalRequest): Promise<ProjectResponse> {
@@ -84,7 +86,7 @@ class ProjectService {
             status: ProjectStatus.SET_FUND_GOAL,
         };
         const project = await this.projectRepository.updateFundGoal(projectId, project1);
-        return mapProjectToProjectResponse(project);
+        return mapProjectToProjectResponse(project, this.storageService);
     }
 
     public async publishProject(projectId: string): Promise<ProjectResponse> {
@@ -96,7 +98,7 @@ class ProjectService {
             published: true,
             status: ProjectStatus.PUBLISHED,
         });
-        return mapProjectToProjectResponse(project);
+        return mapProjectToProjectResponse(project, this.storageService);
     }
 
     public async deleteProject(projectId: string): Promise<void> {
