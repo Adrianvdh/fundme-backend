@@ -19,6 +19,7 @@ const authMiddleware = (userRepository: UserRepository) => {
 
                 if (findUser) {
                     req.user = findUser;
+                    req.userId = findUser._id.toString();
                     next();
                 } else {
                     next(new Unauthenticated());

@@ -4,7 +4,7 @@ import { IUserRepository } from '@/modules/users/repository/IUserRepository';
 import { CreateUserRequest, UserResponse } from '@/modules/users/api/users.model';
 import { User } from '@/modules/users/models/users.interface';
 import { LoginRequest, TokenData } from '@/modules/auth/api/auth.models';
-import { BaseException, NotFound, ValidationError } from '@/shared/exceptions/exceptions';
+import { BaseException, ValidationError } from '@/shared/exceptions/exceptions';
 import { Authenticator } from '@/modules/auth/service/authenticator';
 
 export class AuthenticationException extends BaseException {
