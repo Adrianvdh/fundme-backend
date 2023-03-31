@@ -10,9 +10,14 @@ import {
 import { Project, ProjectStatus } from '@/modules/projects/models/project.interface';
 import { IStorageService } from '@/shared/storage/storage';
 import { File } from '@/shared/http/file';
+import { ContractService } from '@/modules/contracts/service/contract.service';
 
 class ProjectService {
-    constructor(private projectRepository: IProjectRepository, private storageService: IStorageService) {}
+    constructor(
+        private projectRepository: IProjectRepository,
+        private contractService: ContractService,
+        private storageService: IStorageService,
+    ) {}
 
     public async findAllProjects(): Promise<Promise<ProjectResponse>[]> {
         return (await this.projectRepository.findAll()).map(project => mapProjectToProjectResponse(project, this.storageService));
@@ -90,10 +95,8 @@ class ProjectService {
     }
 
     public async publishProject(projectId: string): Promise<ProjectResponse> {
-        // TODOs
-        //  1. Compile contract
-        //  2. Deploy contract
-        //  3. Mint NFT
+        this.contractService.publishContract();
+
         const project = await this.projectRepository.updatePublishState(projectId, {
             published: true,
             status: ProjectStatus.PUBLISHED,

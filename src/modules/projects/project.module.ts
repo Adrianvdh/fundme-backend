@@ -6,6 +6,8 @@ import ProjectController from '@/modules/projects/api/project.controller';
 import ProjectService from '@/modules/projects/service/project.service';
 import { ProjectRepository } from '@/modules/projects/repository/ProjectRepository';
 import { NoopStorageService } from '@/shared/storage/noopStorage';
+import { ContractService } from '@/modules/contracts/service/contract.service';
+import { ContractRepository } from '@/modules/contracts/repository/ContractRepository';
 
 export class ProjectModule extends Module {
     public routes: Routes;
@@ -13,8 +15,12 @@ export class ProjectModule extends Module {
     protected setup() {
         const userRepository = new UserRepository(this.databaseConnection);
         const projectRepository = new ProjectRepository(this.databaseConnection);
-        const service = new ProjectService(projectRepository, new NoopStorageService());
-        const controller = new ProjectController(service);
-        this.routes = new ProjectRoutes(controller, projectRepository, userRepository);
+        // Contract Service
+        const contractService = new ContractService(new ContractRepository(this.databaseConnection));
+        // Project Service
+        const projectService = new ProjectService(projectRepository, contractService, new NoopStorageService());
+        const projectController = new ProjectController(projectService);
+
+        this.routes = new ProjectRoutes(projectController, projectRepository, userRepository);
     }
 }
