@@ -94,8 +94,8 @@ class ProjectService {
         return mapProjectToProjectResponse(project, this.storageService);
     }
 
-    public async publishProject(projectId: string): Promise<ProjectResponse> {
-        this.contractService.publishContract();
+    public async publishProject(userId: string, projectId: string): Promise<ProjectResponse> {
+        await this.contractService.publishContract(userId);
 
         const project = await this.projectRepository.updatePublishState(projectId, {
             published: true,

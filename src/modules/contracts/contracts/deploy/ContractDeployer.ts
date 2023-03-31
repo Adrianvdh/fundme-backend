@@ -1,10 +1,10 @@
-import { DeploymentOptions } from '@/modules/contracts/models/contract.interface';
 import { IContractDeployer } from '@/modules/contracts/contracts/deploy/IContractDeployer';
 import { Contract, ContractFactory, ethers } from 'ethers';
 import { rpcUrlFromBlockchain } from '@/config/rpc/rpcGateway';
 import { Fees, GasFee } from '@/modules/contracts/contracts/deploy/fees/GasFee';
 import { Wallet } from '@/modules/contracts/contracts/deploy/wallet/Wallet';
 import { CompilationDetails } from '@/modules/contracts/contracts/lib/compile/ContractCompiler';
+import { DeploymentOptions } from '@/modules/contracts/contracts/model/contract.model';
 
 export class ContractDeployer implements IContractDeployer {
     async deploy(options: DeploymentOptions, contractSource: CompilationDetails): Promise<Contract> {
@@ -26,10 +26,15 @@ export class ContractDeployer implements IContractDeployer {
         const wallet = new Wallet(contractDeployerSigner);
         wallet.ensureHasSufficientFunds(estimateGasFee);
 
-        return this.doDeploy(contractFactory, options, maxFees);
+        const contract = await this.doDeploy(contractFactory, options, maxFees);
+        return await contract.deployed();
     }
 
-    private async doDeploy(contractFactory: ContractFactory, options: DeploymentOptions, maxFees: Fees) {
+    private async doDeploy(
+        contractFactory: ContractFactory,
+        options: DeploymentOptions,
+        maxFees: Fees,
+    ): Promise<Contract> {
         return await contractFactory.deploy(options.onChainName, options.onChainSymbol, {
             maxFeePerGas: maxFees.maxFeePerGas,
             maxPriorityFeePerGas: maxFees.maxPriorityFeePerGas,

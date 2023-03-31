@@ -4,7 +4,7 @@ import { MongoConnection } from '@/config/databases/mongodb';
 import { MongoDict } from '@/config/databases/types';
 import { DatabaseConnection } from '@/config/databases/connection';
 import { IContractRepository } from '@/modules/contracts/repository/IContractRepository';
-import { Contract } from '@/modules/contracts/models/contract.interface';
+import { Contract, IContractDeployment, IContractDetails } from '@/modules/contracts/models/contract.interface';
 
 export class ContractRepository implements IContractRepository {
     private readonly contracts: mongodb.Collection<Contract>;
@@ -19,5 +19,13 @@ export class ContractRepository implements IContractRepository {
 
     async findOneById(contractId: string): Promise<Contract> {
         return await this.contracts.findOne({ _id: new ObjectId(contractId) });
+    }
+
+    async create(contract: IContractDetails): Promise<Contract> {
+        return Promise.resolve(undefined);
+    }
+
+    async updateDeploymentDetails(contractId: string, contract: IContractDeployment): Promise<Contract> {
+        return Promise.resolve(undefined);
     }
 }

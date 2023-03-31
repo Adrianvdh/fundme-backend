@@ -1,7 +1,7 @@
-export interface FundMeContract {
-    fund(amount: string, fromAddress: string);
+export interface IFundMeContract {
+    fund(amount: string);
 
-    withdraw(amount: string, toAddress: string);
+    withdraw(amount: string);
 
     getFunder(index: number): string;
 

@@ -76,10 +76,11 @@ class ProjectController {
         }
     };
 
-    public publishProject = async (req: Request, res: Response, next: NextFunction) => {
+    public publishProject = async (req: RequestWithUser, res: Response, next: NextFunction) => {
         try {
             const projectId: string = req.params.id;
-            const projectResponse: ProjectResponse = await this.projectService.publishProject(projectId);
+            const userId: string = req.userId;
+            const projectResponse: ProjectResponse = await this.projectService.publishProject(userId, projectId);
 
             return HttpResponse.ok(res, projectResponse);
         } catch (error) {

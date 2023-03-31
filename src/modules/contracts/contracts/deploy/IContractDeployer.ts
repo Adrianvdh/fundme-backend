@@ -1,5 +1,5 @@
-import { DeploymentOptions } from '@/modules/contracts/models/contract.interface';
 import { CompilationDetails } from '@/modules/contracts/contracts/lib/compile/ContractCompiler';
+import { DeploymentOptions } from '@/modules/contracts/contracts/model/contract.model';
 
 export interface IContractDeployer {
     deploy(options: DeploymentOptions, contractSource: CompilationDetails): void;
