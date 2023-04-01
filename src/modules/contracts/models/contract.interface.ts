@@ -9,8 +9,7 @@ export interface Contract {
     name: string;
     description: string;
     status: ContractStatus;
-    onChainName: string;
-    onChainSymbol: string;
+    onChainUrl: string;
     deployed: boolean;
 
     // Deployment details
@@ -35,15 +34,14 @@ export type IContractDetails = Pick<
     | 'ownerId'
     | 'name'
     | 'description'
-    | 'onChainName'
-    | 'onChainSymbol'
+    | 'onChainUrl'
     | 'blockchain'
     | 'contractType'
+    | 'keys'
     | 'status'
     | 'deployed'
     | 'createdOn'
     | 'updatedOn'
-    | 'keys'
 >;
 
 export class ContractDetails implements IContractDetails {
@@ -53,15 +51,14 @@ export class ContractDetails implements IContractDetails {
         ownerId: string,
         public name: string,
         public description: string,
-        public onChainName: string,
-        public onChainSymbol: string,
+        public onChainUrl: string,
         public blockchain: Blockchain,
         public contractType: ContractType,
+        public keys: { private: string; public: string },
         public status: ContractStatus,
         public deployed: boolean,
         public createdOn: Date,
         public updatedOn: Date,
-        public keys: { private: string; public: string },
     ) {
         this.ownerId = new ObjectId(ownerId);
     }

@@ -9,16 +9,13 @@ import { DeploymentOptions } from '@/modules/contracts/contracts/model/contract.
 export class ContractDeployer implements IContractDeployer {
     async deploy(options: DeploymentOptions, contractSource: CompilationDetails): Promise<Contract> {
         const rpcProvider = new ethers.providers.JsonRpcProvider(rpcUrlFromBlockchain(options.blockchain));
-        const contractDeployerSigner = new ethers.Wallet('SOME-PRIVATE-KEY', rpcProvider);
+        const contractDeployerSigner = new ethers.Wallet(options.deployerKeys.private, rpcProvider);
         const contractFactory = new ContractFactory(
             contractSource.abi,
             contractSource.byteCode,
             contractDeployerSigner,
         );
-        const deployTransactionRequest = contractFactory.getDeployTransaction(
-            options.onChainName,
-            options.onChainSymbol,
-        );
+        const deployTransactionRequest = await contractFactory.getDeployTransaction(options.onChainUrl);
         const gasFee = new GasFee(options.blockchain, rpcProvider, deployTransactionRequest);
         const maxFees = await gasFee.determineMaxFees();
         const estimateGasFee = await gasFee.estimateGasFee(maxFees);
@@ -35,10 +32,14 @@ export class ContractDeployer implements IContractDeployer {
         options: DeploymentOptions,
         maxFees: Fees,
     ): Promise<Contract> {
-        return await contractFactory.deploy(options.onChainName, options.onChainSymbol, {
-            maxFeePerGas: maxFees.maxFeePerGas,
-            maxPriorityFeePerGas: maxFees.maxPriorityFeePerGas,
-            gasLimit: 6000000,
-        });
+        try {
+            return await contractFactory.deploy(options.onChainUrl, {
+                maxFeePerGas: maxFees.maxFeePerGas,
+                maxPriorityFeePerGas: maxFees.maxPriorityFeePerGas,
+                gasLimit: 6000000,
+            });
+        } catch (e) {
+            console.log(e);
+        }
     }
 }

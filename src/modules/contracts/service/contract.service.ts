@@ -12,8 +12,7 @@ export class ContractService {
         const options = {
             name: 'The project name',
             description: '',
-            onChainName: 'On ch',
-            onChainSymbol: '',
+            onChainUrl: '',
             blockchain: Blockchain.XDAI,
             contractType: ContractType.ERC1155,
         };
@@ -23,15 +22,14 @@ export class ContractService {
                 userId,
                 options.name,
                 options.description,
-                options.onChainName,
-                options.onChainSymbol,
+                options.onChainUrl,
                 options.blockchain,
                 options.contractType,
+                options.deployerKeys,
                 ContractStatus.PENDING,
                 false,
                 new Date(),
                 new Date(),
-                { private: '', public: '' },
             ),
         );
 

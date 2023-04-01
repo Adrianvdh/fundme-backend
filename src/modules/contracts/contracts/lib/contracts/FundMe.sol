@@ -1271,8 +1271,9 @@ contract FundMe is ERC1155, Ownable, Pausable {
     mapping (address => uint256) public s_balances;
     uint256 private _nextMintId;
 
-    constructor() ERC1155("FundMe contract") {
+    constructor(string memory url) ERC1155(url) {
     }
+
 
     // Events
     event Funded(address indexed from, uint256 amount, uint256 token);
