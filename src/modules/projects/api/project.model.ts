@@ -43,7 +43,10 @@ export interface ProjectResponse {
     modified: string;
 }
 
-export async function mapProjectToProjectResponse(project: Project, storageService: IStorageService): Promise<ProjectResponse> {
+export async function mapProjectToProjectResponse(
+    project: Project,
+    storageService: IStorageService,
+): Promise<ProjectResponse> {
     const url = await storageService.getAbsolutePath(project.image.url);
     return {
         _id: project._id.toString(),
