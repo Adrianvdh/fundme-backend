@@ -6,6 +6,11 @@ export interface CompilationDetails {
     byteCode: string;
     abi: string;
 }
+export class CompilerException extends Error {
+    constructor(message: string) {
+        super(message);
+    }
+}
 
 export abstract class ContractCompiler {
     abstract contractFileName: string;
@@ -34,8 +39,10 @@ export abstract class ContractCompiler {
             },
         };
         const compiledContract = JSON.parse(solc.compile(JSON.stringify(contractCompilationData)));
+        if (compiledContract.errors) {
+            throw new CompilerException(compiledContract.errors[0].message);
+        }
         const contractClass = compiledContract.contracts[this.contractFileName][this.contractClassName];
-
         return {
             byteCode: contractClass.evm.bytecode.object,
             abi: JSON.stringify(contractClass.abi),

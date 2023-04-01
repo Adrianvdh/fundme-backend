@@ -10,7 +10,7 @@ class ProjectController {
 
     public getProjects = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const findAllProjects: Promise<ProjectResponse>[] = await this.projectService.findAllProjects();
+            const findAllProjects: ProjectResponse[] = await this.projectService.findAllProjects();
 
             res.status(200).json(findAllProjects);
         } catch (error) {

@@ -1,5 +1,5 @@
 import { FeeData, JsonRpcProvider, TransactionRequest } from '@ethersproject/providers';
-import axios, { AxiosResponse } from 'axios/index';
+import axios, { AxiosResponse } from 'axios';
 import { BigNumber, utils } from 'ethers';
 import { Blockchain } from '@/modules/contracts/contracts/model/contract.model';
 
