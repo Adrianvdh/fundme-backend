@@ -5,7 +5,7 @@ import {
     mapProjectToProjectResponse,
     ProjectResponse,
     SaveProjectDetailsRequest,
-    SaveProjectFundGoalRequest
+    SaveProjectFundGoalRequest,
 } from '@/modules/projects/api/project.model';
 import { Project, ProjectStatus } from '@/modules/projects/models/project.interface';
 import { IStorageService } from '@/shared/storage/storage';
@@ -19,8 +19,11 @@ class ProjectService {
         private storageService: IStorageService,
     ) {}
 
-    public async findAllProjects(): Promise<Promise<ProjectResponse>[]> {
-        return (await this.projectRepository.findAll()).map(project => mapProjectToProjectResponse(project, this.storageService));
+    public async findAllProjects(): Promise<ProjectResponse[]> {
+        const mappedProjects = (await this.projectRepository.findAll()).map(project =>
+            mapProjectToProjectResponse(project, this.storageService),
+        );
+        return await Promise.all(mappedProjects);
     }
 
     public async findProjectById(projectId: string): Promise<ProjectResponse> {
