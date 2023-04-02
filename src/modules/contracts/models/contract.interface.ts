@@ -66,6 +66,8 @@ export class ContractDetails implements IContractDetails {
 
 export type IContractDeployment = Pick<Contract, 'contractAddress' | 'transactionHash' | 'abi'>;
 
+export type IContractConnectorDetails = Pick<Contract, 'contractAddress' | 'abi' | 'keys'>;
+
 export class ContractDeployment implements IContractDeployment {
     constructor(public contractAddress: string, public transactionHash: string, public abi: string) {}
 }

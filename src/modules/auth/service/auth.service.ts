@@ -8,6 +8,7 @@ import { BaseException, ValidationError } from '@/shared/exceptions/exceptions';
 import { Authenticator } from '@/modules/auth/service/authenticator';
 
 export class AuthenticationException extends BaseException {
+    public statusCode = 400;
     constructor(message: string) {
         super(message);
     }

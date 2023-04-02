@@ -98,7 +98,7 @@ class ProjectService {
     }
 
     public async publishProject(userId: string, projectId: string): Promise<ProjectResponse> {
-        await this.contractService.publishContract(userId);
+        await this.contractService.deployContract(userId);
 
         const project = await this.projectRepository.updatePublishState(projectId, {
             published: true,

@@ -1,9 +1,9 @@
-import { Blockchain } from '@/modules/contracts/models/contract.interface';
+import { Blockchain } from '@/modules/contracts/contracts/model/contract.model';
 
 export function rpcUrlFromBlockchain(blockchain: Blockchain) {
     switch (blockchain) {
         case 'XDAI': {
-            return process.env.XDAI_RPC_GATEWAY;
+            return process.env.RPC_URL;
         }
         case 'POLYGON': {
             return process.env.POLYGON_RPC_GATEWAY;

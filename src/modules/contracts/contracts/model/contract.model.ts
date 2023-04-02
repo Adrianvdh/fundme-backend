@@ -4,10 +4,19 @@ export type DeploymentOptions = {
     onChainUrl: string;
     blockchain: Blockchain;
     contractType: ContractType;
-    deployerKeys: {
-        public: string;
-        private: string;
-    };
+    deployerKeys: WalletKeys;
+};
+
+export type ContractConnectorDetails = {
+    blockchain: Blockchain;
+    contractAddress: string;
+    abi: string;
+    keys: WalletKeys;
+};
+
+export type WalletKeys = {
+    public: string;
+    private: string;
 };
 
 export enum Blockchain {
