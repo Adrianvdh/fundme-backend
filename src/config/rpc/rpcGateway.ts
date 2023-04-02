@@ -6,7 +6,7 @@ export function rpcUrlFromBlockchain(blockchain: Blockchain) {
             return process.env.RPC_URL;
         }
         case 'POLYGON': {
-            return process.env.POLYGON_RPC_GATEWAY;
+            return process.env.RPC_URL;
         }
     }
 }

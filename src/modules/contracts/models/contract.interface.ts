@@ -13,15 +13,15 @@ export interface Contract {
     deployed: boolean;
 
     // Deployment details
-    contractAddress: string;
-    transactionHash: string;
     blockchain: Blockchain;
     contractType: ContractType;
-    abi: string;
     keys: {
         private: string;
         public: string;
     };
+    contractAddress: string;
+    transactionHash: string;
+    abi: string;
 
     // Meta
     version: string;
@@ -34,12 +34,13 @@ export type IContractDetails = Pick<
     | 'ownerId'
     | 'name'
     | 'description'
+    | 'status'
     | 'onChainUrl'
+    | 'deployed'
     | 'blockchain'
     | 'contractType'
     | 'keys'
-    | 'status'
-    | 'deployed'
+    | 'version'
     | 'createdOn'
     | 'updatedOn'
 >;
@@ -55,21 +56,26 @@ export class ContractDetails implements IContractDetails {
         public blockchain: Blockchain,
         public contractType: ContractType,
         public keys: { private: string; public: string },
-        public status: ContractStatus,
-        public deployed: boolean,
-        public createdOn: Date,
-        public updatedOn: Date,
+        public status: ContractStatus = ContractStatus.PENDING,
+        public deployed = false,
+        public createdOn = new Date(),
+        public updatedOn = new Date(),
+        public version = '1.0.0',
     ) {
         this.ownerId = new ObjectId(ownerId);
     }
 }
 
-export type IContractDeployment = Pick<Contract, 'contractAddress' | 'transactionHash' | 'abi'>;
-
-export type IContractConnectorDetails = Pick<Contract, 'contractAddress' | 'abi' | 'keys'>;
+export type IContractDeployment = Pick<Contract, 'contractAddress' | 'transactionHash' | 'abi' | 'status'>;
 
 export class ContractDeployment implements IContractDeployment {
-    constructor(public contractAddress: string, public transactionHash: string, public abi: string) {}
+    constructor(
+        public contractAddress: string,
+        public transactionHash: string,
+        public abi: string,
+        public status: ContractStatus = ContractStatus.DEPLOYED,
+        public updatedOn = new Date(),
+    ) {}
 }
 
 export enum ContractStatus {

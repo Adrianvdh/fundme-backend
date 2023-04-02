@@ -1,5 +1,6 @@
 import { MongoDict } from '@/config/databases/types';
 import { Contract, IContractDeployment, IContractDetails } from '@/modules/contracts/models/contract.interface';
+import { Project, ProjectPublishState } from '@/modules/projects/models/project.interface';
 
 export interface IContractRepository {
     find(filter: MongoDict): Promise<Contract>;
@@ -9,4 +10,6 @@ export interface IContractRepository {
     create(contract: IContractDetails): Promise<Contract>;
 
     updateDeploymentDetails(contractId: string, contract: IContractDeployment): Promise<Contract>;
+
+    markAsFailed(contractId: string, status: Pick<Contract, 'deployed' | 'status'>): Promise<Contract>;
 }
