@@ -18,6 +18,7 @@ export interface Project {
     categories: Array<string>;
     published: boolean;
     status: ProjectStatus;
+    contractId: ObjectId;
     ownerId: ObjectId;
     contributors: Array<any>;
     created: Date;

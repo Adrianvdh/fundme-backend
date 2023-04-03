@@ -6,7 +6,7 @@ import { Wallet } from '@/modules/contracts/contracts/deploy/wallet/Wallet';
 import { CompilationDetails } from '@/modules/contracts/contracts/lib/compile/ContractCompiler';
 import { DeploymentOptions } from '@/modules/contracts/contracts/model/contract.model';
 import { BaseException } from '@/shared/exceptions/exceptions';
-import { Contract } from '@/modules/contracts/contracts/Contract';
+import { BlockchainContract } from '@/modules/contracts/contracts/BlockchainContract';
 import { Constructable } from '@/shared/types';
 
 export class ContractDeploymentException extends BaseException {
@@ -15,32 +15,30 @@ export class ContractDeploymentException extends BaseException {
     }
 }
 
-export class ContractDeployer extends IContractDeployer {
-    private readonly provider: ethers.providers.JsonRpcProvider;
-    private readonly contractDeployerSigner: ethers.Wallet;
+export class ContractDeployer implements IContractDeployer {
+    async deploy<T extends BlockchainContract>(
+        ContractType: Constructable<T>,
+        options: DeploymentOptions,
+        contractSource: CompilationDetails,
+    ): Promise<T> {
+        const provider = new ethers.providers.JsonRpcProvider(rpcUrlFromBlockchain(options.blockchain));
+        const contractDeployerSigner = new ethers.Wallet(options.deployerKeys.private, provider);
 
-    constructor(protected options: DeploymentOptions, protected contractSource: CompilationDetails) {
-        super(options, contractSource);
-        this.provider = new ethers.providers.JsonRpcProvider(rpcUrlFromBlockchain(options.blockchain));
-        this.contractDeployerSigner = new ethers.Wallet(options.deployerKeys.private, this.provider);
-    }
-
-    async deploy<T extends Contract>(ContractType: Constructable<T>): Promise<T> {
         const contractFactory = new ContractFactory(
-            this.contractSource.abi,
-            this.contractSource.byteCode,
-            this.contractDeployerSigner,
+            contractSource.abi,
+            contractSource.byteCode,
+            contractDeployerSigner,
         );
-        const deployTransactionRequest = await contractFactory.getDeployTransaction(this.options.onChainUrl);
+        const deployTransactionRequest = await contractFactory.getDeployTransaction(options.onChainUrl);
 
-        const gasFee = new GasFee(this.options.blockchain, this.provider, deployTransactionRequest);
+        const gasFee = new GasFee(options.blockchain, provider, deployTransactionRequest);
         const maxFees = await gasFee.determineMaxFees();
         const estimateGasFee = await gasFee.estimateGasFee(maxFees);
 
-        const wallet = new Wallet(this.contractDeployerSigner);
+        const wallet = new Wallet(contractDeployerSigner);
         wallet.ensureHasSufficientFunds(estimateGasFee);
 
-        const contract = await this.doDeploy(contractFactory, this.options, maxFees);
+        const contract = await this.doDeploy(contractFactory, options, maxFees);
         return new ContractType(await contract.deployed());
     }
 

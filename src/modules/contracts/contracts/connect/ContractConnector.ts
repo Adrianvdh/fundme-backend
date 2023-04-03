@@ -1,7 +1,7 @@
 import { Contract as EthersContract, ethers } from 'ethers';
 import { rpcUrlFromBlockchain } from '@/config/rpc/rpcGateway';
 import { ContractConnectorDetails } from '@/modules/contracts/contracts/model/contract.model';
-import { Contract } from '@/modules/contracts/contracts/Contract';
+import { BlockchainContract } from '@/modules/contracts/contracts/BlockchainContract';
 import { Constructable } from '@/shared/types';
 import { IContractConnector } from '@/modules/contracts/contracts/connect/IContractConnector';
 
@@ -15,7 +15,7 @@ export class ContractConnector extends IContractConnector {
         this.contractDeployerSigner = new ethers.Wallet(connectorDetails.keys.private, this.provider);
     }
 
-    connectReadonly<T extends Contract>(ContractType: Constructable<T>): T {
+    connectReadonly<T extends BlockchainContract>(ContractType: Constructable<T>): T {
         const contract = new EthersContract(
             this.connectorDetails.contractAddress,
             this.connectorDetails.abi,
@@ -24,7 +24,7 @@ export class ContractConnector extends IContractConnector {
         return new ContractType(contract);
     }
 
-    connectReadWrite<T extends Contract>(ContractType: Constructable<T>): T {
+    connectReadWrite<T extends BlockchainContract>(ContractType: Constructable<T>): T {
         const contract = new EthersContract(
             this.connectorDetails.contractAddress,
             this.connectorDetails.abi,

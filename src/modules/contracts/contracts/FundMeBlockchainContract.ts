@@ -1,8 +1,8 @@
 import { IFundMeContract } from '@/modules/contracts/contracts/IFundMeContract';
-import { Contract } from '@/modules/contracts/contracts/Contract';
+import { BlockchainContract } from '@/modules/contracts/contracts/BlockchainContract';
 import { ethers } from 'ethers';
 
-export class FundMeContract extends Contract implements IFundMeContract {
+export class FundMeBlockchainContract extends BlockchainContract implements IFundMeContract {
     async fund(amount: string) {
         const amountBigNumber = ethers.utils.parseEther(amount);
         await this.contract.fund({ value: amountBigNumber });

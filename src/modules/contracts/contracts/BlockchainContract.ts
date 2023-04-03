@@ -2,7 +2,7 @@ import { Contract as EthersContract } from 'ethers';
 import { Signer } from '@ethersproject/abstract-signer';
 import { Provider, TransactionResponse } from '@ethersproject/abstract-provider';
 
-export abstract class Contract {
+export abstract class BlockchainContract {
     public constructor(protected contract: EthersContract) {}
 
     public address() {

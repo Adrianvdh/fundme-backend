@@ -1,5 +1,5 @@
 import { ContractConnectorDetails } from '@/modules/contracts/contracts/model/contract.model';
-import { Contract } from '@/modules/contracts/contracts/Contract';
+import { BlockchainContract } from '@/modules/contracts/contracts/BlockchainContract';
 import { Constructable } from '@/shared/types';
 
 /**
@@ -18,7 +18,7 @@ export abstract class IContractConnector {
      * - Static Calling non-constant methods (as anonymous sender)
      * @param ContractType
      */
-    abstract connectReadonly<T extends Contract>(ContractType: Constructable<T>): T;
+    abstract connectReadonly<T extends BlockchainContract>(ContractType: Constructable<T>): T;
 
     /**
      * Read-Write; By connecting to a Signer, allows:
@@ -26,5 +26,5 @@ export abstract class IContractConnector {
      * - Sending transactions for non-constant functions
      * @param ContractType
      */
-    abstract connectReadWrite<T extends Contract>(ContractType: Constructable<T>): T;
+    abstract connectReadWrite<T extends BlockchainContract>(ContractType: Constructable<T>): T;
 }
