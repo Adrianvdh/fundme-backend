@@ -1,5 +1,5 @@
-import { Blockchain } from '@/modules/contracts/contracts/model/contract.model';
 import { RPC_URL } from '@config';
+import { Blockchain } from '@/shared/blockchain/model/blockchain.model';
 
 export function rpcUrlFromBlockchain(blockchain: Blockchain) {
     switch (blockchain) {

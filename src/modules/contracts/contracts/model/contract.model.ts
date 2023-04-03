@@ -1,3 +1,5 @@
+import { Blockchain, WalletKeys } from '@/shared/blockchain/model/blockchain.model';
+
 export type DeploymentOptions = {
     name: string;
     description: string;
@@ -14,15 +16,6 @@ export type ContractConnectorDetails = {
     keys: WalletKeys;
 };
 
-export type WalletKeys = {
-    public: string;
-    private: string;
-};
-
-export enum Blockchain {
-    XDAI = 'XDAI',
-    POLYGON = 'POLYGON',
-}
 
 export enum ContractType {
     ERC1155 = 'ERC1155',

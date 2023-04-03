@@ -21,9 +21,10 @@ export class ProjectModule extends Module {
         const contractRepository = new ContractRepository(this.databaseConnection);
         // Contract Service
         const contractService = new ContractService(
+            userRepository,
             contractRepository,
             new FundMeContractCompiler(),
-            new FakeContractDeployer(),
+            new ContractDeployer(),
         );
         // Project Service
         const projectService = new ProjectService(projectRepository, contractService, new NoopStorageService());

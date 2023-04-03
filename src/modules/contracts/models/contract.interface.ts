@@ -1,5 +1,6 @@
 import { ObjectId } from 'mongodb';
-import { Blockchain, ContractType } from '@/modules/contracts/contracts/model/contract.model';
+import { Blockchain } from '@/shared/blockchain/model/blockchain.model';
+import { ContractType } from '@/modules/contracts/contracts/model/contract.model';
 
 export interface Contract {
     _id?: ObjectId;

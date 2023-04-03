@@ -2,12 +2,12 @@ import { IContractDeployer } from '@/modules/contracts/contracts/deploy/IContrac
 import { Contract as EthersContract, ContractFactory, ethers } from 'ethers';
 import { rpcUrlFromBlockchain } from '@/config/rpc/rpcGateway';
 import { Fees, GasFee } from '@/modules/contracts/contracts/deploy/fees/GasFee';
-import { Wallet } from '@/modules/contracts/contracts/deploy/wallet/Wallet';
 import { CompilationDetails } from '@/modules/contracts/contracts/lib/compile/ContractCompiler';
 import { DeploymentOptions } from '@/modules/contracts/contracts/model/contract.model';
 import { BaseException } from '@/shared/exceptions/exceptions';
 import { BlockchainContract } from '@/modules/contracts/contracts/BlockchainContract';
 import { Constructable } from '@/shared/types';
+import { Wallet } from '@/shared/blockchain/wallet/Wallet';
 
 export class ContractDeploymentException extends BaseException {
     constructor(message: string) {
