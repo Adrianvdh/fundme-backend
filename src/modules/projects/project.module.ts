@@ -10,6 +10,7 @@ import { ContractService } from '@/modules/contracts/service/contract.service';
 import { ContractRepository } from '@/modules/contracts/repository/ContractRepository';
 import { FundMeContractCompiler } from '@/modules/contracts/contracts/lib/compile/FundMeContractCompiler';
 import { ContractDeployer } from '@/modules/contracts/contracts/deploy/ContractDeployer';
+import { FakeContractDeployer } from '@/modules/contracts/contracts/deploy/FakeContractDeployer';
 
 export class ProjectModule extends Module {
     public routes: Routes;
@@ -22,7 +23,7 @@ export class ProjectModule extends Module {
         const contractService = new ContractService(
             contractRepository,
             new FundMeContractCompiler(),
-            new ContractDeployer(),
+            new FakeContractDeployer(),
         );
         // Project Service
         const projectService = new ProjectService(projectRepository, contractService, new NoopStorageService());

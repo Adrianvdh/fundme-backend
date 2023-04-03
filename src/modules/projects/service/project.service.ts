@@ -98,13 +98,15 @@ class ProjectService {
     }
 
     public async publishProject(userId: string, projectId: string): Promise<ProjectResponse> {
-        const contract = await this.contractService.deployContract(userId);
+        const project = await this.projectRepository.findOneById(projectId);
+        const contract = await this.contractService.deployContract(userId, project.title, project.description);
 
-        const project = await this.projectRepository.updatePublishState(projectId, {
+        const updatedProject = await this.projectRepository.updatePublishState(projectId, {
             published: true,
             status: ProjectStatus.PUBLISHED,
+            contractId: contract._id,
         });
-        return mapProjectToProjectResponse(project, this.storageService);
+        return mapProjectToProjectResponse(updatedProject, this.storageService);
     }
 
     public async deleteProject(projectId: string): Promise<void> {

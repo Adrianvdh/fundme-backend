@@ -27,9 +27,9 @@ export class ContractService {
         private deployer: IContractDeployer,
     ) {}
 
-    public async deployContract(userId: string): Promise<Contract> {
+    public async deployContract(userId: string, name: string, description: string): Promise<Contract> {
         // 1. Save contract options into Mongo
-        const options = this.deploymentOptions();
+        const options = this.deploymentOptions(name, description);
         const modelContract = await this.saveContractDetails(userId, options);
 
         // 2, Compile contract
@@ -42,10 +42,10 @@ export class ContractService {
         return await this.saveDeployedContract(modelContract, blockchainContract, compilationDetails);
     }
 
-    private deploymentOptions(): DeploymentOptions {
+    private deploymentOptions(name: string, description: string): DeploymentOptions {
         return {
-            name: 'The project name',
-            description: '',
+            name,
+            description,
             onChainUrl: '',
             blockchain: Blockchain.POLYGON,
             contractType: ContractType.ERC1155,

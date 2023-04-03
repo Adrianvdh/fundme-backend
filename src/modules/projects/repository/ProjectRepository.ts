@@ -58,6 +58,7 @@ export class ProjectRepository implements IProjectRepository {
             categories: [],
             published: project.published,
             status: project.status,
+            contractId: null,
             ownerId: new ObjectId(ownerId),
             contributors: [],
             created: new Date(),
