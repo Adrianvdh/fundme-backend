@@ -18,6 +18,7 @@ export interface Project {
     categories: Array<string>;
     published: boolean;
     status: ProjectStatus;
+    contractId: ObjectId;
     ownerId: ObjectId;
     contributors: Array<any>;
     created: Date;
@@ -30,7 +31,7 @@ export type ProjectDetails = Pick<Project, 'title' | 'description' | 'status'>;
 
 export type ProjectFundGoal = Pick<Project, 'endDate' | 'status'> & Pick<Project['fundGoal'], 'targetGoal'>;
 
-export type ProjectPublishState = Pick<Project, 'published' | 'status'>;
+export type ProjectPublishState = Pick<Project, 'published' | 'status' | 'contractId'>;
 
 export enum ProjectStatus {
     EMPTY = 'EMPTY',

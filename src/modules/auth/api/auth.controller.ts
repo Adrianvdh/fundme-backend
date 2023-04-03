@@ -2,14 +2,15 @@ import { NextFunction, Request, Response } from 'express';
 import AuthService from '@/modules/auth/service/auth.service';
 import { LoginRequest } from '@/modules/auth/api/auth.models';
 import { CreateUserRequest, UserResponse } from '@/modules/users/api/users.model';
+import UserService from '@/modules/users/service/users.service';
 
 class AuthController {
-    constructor(private authService: AuthService) {}
+    constructor(private authService: AuthService, private userService: UserService) {}
 
     public register = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const userData: CreateUserRequest = req.body;
-            const userResponse: UserResponse = await this.authService.signup(userData);
+            const userResponse: UserResponse = await this.userService.createUser(userData);
 
             res.status(201).json(userResponse);
         } catch (error) {

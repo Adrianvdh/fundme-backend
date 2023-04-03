@@ -4,6 +4,8 @@ import { isEmpty } from '@/shared/utils/util';
 import { IUserRepository } from '@/modules/users/repository/IUserRepository';
 import { NotFound, ValidationError } from '@/shared/exceptions/exceptions';
 import { CreateUserRequest, UserResponse } from '@/modules/users/api/users.model';
+import { createWallet } from '@/shared/blockchain/wallet/Wallet';
+import { Blockchain } from '@/shared/blockchain/model/blockchain.model';
 
 class UserService {
     constructor(private userRepository: IUserRepository) {}
@@ -42,7 +44,18 @@ class UserService {
         }
 
         const hashedPassword = await hash(userData.password, 10);
-        const user = await this.userRepository.create({ ...userData, password: hashedPassword });
+        // TODO centralise blockchain type
+        const wallet = createWallet(Blockchain.POLYGON);
+
+        const user = await this.userRepository.create({
+            ...userData,
+            password: hashedPassword,
+            wallet: {
+                address: wallet.address(),
+                keys: wallet.keys(),
+            },
+        });
+
         return {
             _id: user._id.toString(),
             email: user.email,
@@ -54,19 +67,22 @@ class UserService {
             throw new ValidationError('Empty request!');
         }
 
-        if (userData.email) {
-            const findUser: User = await this.userRepository.findOneByEmail(userData.email);
-            if (findUser && findUser._id.toString() != userId) {
-                throw new ValidationError({ email: `This email ${userData.email} already exists` });
-            }
+        const findUser: User = await this.userRepository.findOneByEmail(userData.email);
+
+        if (findUser && findUser._id.toString() === userId) {
+            throw new ValidationError({ email: `This email ${userData.email} already exists` });
         }
 
+        let updatedUserDate = {
+            ...findUser,
+            ...userData,
+        };
         if (userData.password) {
             const hashedPassword = await hash(userData.password, 10);
-            userData = { ...userData, password: hashedPassword };
+            updatedUserDate = { ...updatedUserDate, password: hashedPassword };
         }
 
-        const user: User = await this.userRepository.updateOne(userId, userData);
+        const user: User = await this.userRepository.updateOne(userId, updatedUserDate);
         if (!user) {
             throw new NotFound("User doesn't exist");
         }

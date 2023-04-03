@@ -12,17 +12,34 @@ class ProjectRoutes implements Routes {
     public path = '/projects';
     public router = Router();
 
-    constructor(private projectController: ProjectController, private projectRepository: ProjectRepository, private userRepository: UserRepository) {
+    constructor(
+        private projectController: ProjectController,
+        private projectRepository: ProjectRepository,
+        private userRepository: UserRepository,
+    ) {
         this.initializeRoutes();
     }
 
     private initializeRoutes() {
         this.router.get(`${this.path}`, this.projectController.getProjects);
-        this.router.post(`${this.path}`, authenticated(this.userRepository), singleFileUpload(), this.projectController.createProject);
-        this.router.get(`${this.path}/latest-incomplete`, authenticated(this.userRepository), this.projectController.getLatestIncomplete);
+        this.router.post(
+            `${this.path}`,
+            authenticated(this.userRepository),
+            singleFileUpload(),
+            this.projectController.createProject,
+        );
+        this.router.get(
+            `${this.path}/latest-incomplete`,
+            authenticated(this.userRepository),
+            this.projectController.getLatestIncomplete,
+        );
 
         this.router.get(`${this.path}/:id`, this.projectController.getProjectById);
-        this.router.delete(`${this.path}/:id`, authenticated(this.userRepository), this.projectController.deleteProject);
+        this.router.delete(
+            `${this.path}/:id`,
+            authenticated(this.userRepository),
+            this.projectController.deleteProject,
+        );
 
         this.router.put(
             `${this.path}/:id/project-details`,
@@ -36,7 +53,11 @@ class ProjectRoutes implements Routes {
             validated(SaveProjectFundGoalRequest, 'body', true),
             this.projectController.saveFundGoal,
         );
-        this.router.put(`${this.path}/:id/publish`, authenticated(this.userRepository), this.projectController.publishProject);
+        this.router.put(
+            `${this.path}/:id/publish`,
+            authenticated(this.userRepository),
+            this.projectController.publishProject,
+        );
     }
 }
 

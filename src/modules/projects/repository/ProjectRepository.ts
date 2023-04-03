@@ -58,6 +58,7 @@ export class ProjectRepository implements IProjectRepository {
             categories: [],
             published: project.published,
             status: project.status,
+            contractId: null,
             ownerId: new ObjectId(ownerId),
             contributors: [],
             created: new Date(),
@@ -102,7 +103,7 @@ export class ProjectRepository implements IProjectRepository {
         return await this.updateProject(projectId, update);
     }
 
-    private async updateProject(projectId: string, update: MongoDict) {
+    private async updateProject(projectId: string, update: MongoDict): Promise<Project> {
         const result = await this.projects.updateOne({ _id: new ObjectId(projectId) }, update);
         if (result.modifiedCount === 0) {
             throw new MongoException('Failed to update the project!');

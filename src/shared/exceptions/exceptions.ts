@@ -1,5 +1,5 @@
 export class BaseException extends Error {
-    public statusCode = 400;
+    public statusCode = 500;
     public message: string;
 
     constructor(message: string) {

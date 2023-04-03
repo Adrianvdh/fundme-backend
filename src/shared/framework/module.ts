@@ -3,6 +3,7 @@ import { DatabaseConnection } from '@/config/databases/connection';
 
 export abstract class Module {
     public routes: Routes;
+    public routerEnabled = true;
 
     public constructor(protected databaseConnection: DatabaseConnection) {
         this.setup(databaseConnection);

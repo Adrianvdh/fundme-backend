@@ -10,10 +10,14 @@ import {
 import { Project, ProjectStatus } from '@/modules/projects/models/project.interface';
 import { IStorageService } from '@/shared/storage/storage';
 import { File } from '@/shared/http/file';
-import projects from '@/modules/projects';
+import { ContractService } from '@/modules/contracts/service/contract.service';
 
 class ProjectService {
-    constructor(private projectRepository: IProjectRepository, private storageService: IStorageService) {}
+    constructor(
+        private projectRepository: IProjectRepository,
+        private contractService: ContractService,
+        private storageService: IStorageService,
+    ) {}
 
     public async findAllProjects(): Promise<ProjectResponse[]> {
         const mappedProjects = (await this.projectRepository.findAll()).map(project =>
@@ -93,16 +97,16 @@ class ProjectService {
         return mapProjectToProjectResponse(project, this.storageService);
     }
 
-    public async publishProject(projectId: string): Promise<ProjectResponse> {
-        // TODOs
-        //  1. Compile contract
-        //  2. Deploy contract
-        //  3. Mint NFT
-        const project = await this.projectRepository.updatePublishState(projectId, {
+    public async publishProject(userId: string, projectId: string): Promise<ProjectResponse> {
+        const project = await this.projectRepository.findOneById(projectId);
+        const contract = await this.contractService.deployContract(userId, project.title, project.description);
+
+        const updatedProject = await this.projectRepository.updatePublishState(projectId, {
             published: true,
             status: ProjectStatus.PUBLISHED,
+            contractId: contract._id,
         });
-        return mapProjectToProjectResponse(project, this.storageService);
+        return mapProjectToProjectResponse(updatedProject, this.storageService);
     }
 
     public async deleteProject(projectId: string): Promise<void> {

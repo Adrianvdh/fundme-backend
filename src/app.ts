@@ -64,7 +64,9 @@ class App {
     private initializeModules(modules: Constructable<Module>[]) {
         modules.forEach(ModuleClass => {
             const moduleObj = new ModuleClass(this.databaseConnection);
-            this.app.use('/api/', moduleObj.routes.router);
+            if (moduleObj.routerEnabled) {
+                this.app.use('/api/', moduleObj.routes.router);
+            }
         });
     }
 
