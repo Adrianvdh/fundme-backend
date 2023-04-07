@@ -2,12 +2,12 @@ import { isEmpty } from '@/shared/utils/util';
 import { NotFound, ValidationError } from '@/shared/exceptions/exceptions';
 import { IProjectRepository } from '@/modules/projects/repository/IProjectRepository';
 import {
-    mapProjectToProjectResponse,
+    mapDetailedProjectToProjectResponse,
     ProjectResponse,
     SaveProjectDetailsRequest,
     SaveProjectFundGoalRequest,
 } from '@/modules/projects/api/project.model';
-import { Project, ProjectStatus } from '@/modules/projects/models/project.interface';
+import { DetailedProject, Project, ProjectStatus } from '@/modules/projects/models/project.interface';
 import { IStorageService } from '@/shared/storage/storage';
 import { File } from '@/shared/http/file';
 import { ContractService } from '@/modules/contracts/service/contract.service';
@@ -21,7 +21,7 @@ class ProjectService {
 
     public async findAllProjects(): Promise<ProjectResponse[]> {
         const mappedProjects = (await this.projectRepository.findAll()).map(project =>
-            mapProjectToProjectResponse(project, this.storageService),
+            mapDetailedProjectToProjectResponse(project, this.storageService),
         );
         return await Promise.all(mappedProjects);
     }
@@ -31,12 +31,12 @@ class ProjectService {
             throw new ValidationError('Empty request!');
         }
 
-        const project: Project = await this.projectRepository.findOneById(projectId);
+        const project: DetailedProject = await this.projectRepository.findOneById(projectId);
         if (!project) {
             throw new NotFound("Project doesn't exist");
         }
 
-        return mapProjectToProjectResponse(project, this.storageService);
+        return mapDetailedProjectToProjectResponse(project, this.storageService);
     }
 
     public async findLatestIncomplete(userId: string): Promise<ProjectResponse> {
@@ -46,7 +46,7 @@ class ProjectService {
 
         const project: Project = await this.projectRepository.findOneLatestIncompleteByOwnerId(userId);
         if (project) {
-            return mapProjectToProjectResponse(project, this.storageService);
+            return mapDetailedProjectToProjectResponse(project, this.storageService);
         }
         return null;
     }
@@ -59,13 +59,13 @@ class ProjectService {
 
         const project = await this.projectRepository.create(ownerId, {
             image: {
-                url: result.relativePath(),
+                urlPath: result.relativePath(),
                 fileType: file.mimeType(),
             },
             published: false,
             status: ProjectStatus.COVER_UPLOADED,
         });
-        return mapProjectToProjectResponse(project, this.storageService);
+        return mapDetailedProjectToProjectResponse(project, this.storageService);
     }
 
     public async saveProjectDetails(
@@ -80,7 +80,7 @@ class ProjectService {
             ...projectDetails,
             status: ProjectStatus.CAPTURED_PROJECT_DETAILS,
         });
-        return mapProjectToProjectResponse(project, this.storageService);
+        return mapDetailedProjectToProjectResponse(project, this.storageService);
     }
 
     public async saveFundGoal(projectId: string, projectDetails: SaveProjectFundGoalRequest): Promise<ProjectResponse> {
@@ -94,7 +94,7 @@ class ProjectService {
             status: ProjectStatus.SET_FUND_GOAL,
         };
         const project = await this.projectRepository.updateFundGoal(projectId, project1);
-        return mapProjectToProjectResponse(project, this.storageService);
+        return mapDetailedProjectToProjectResponse(project, this.storageService);
     }
 
     public async publishProject(userId: string, projectId: string): Promise<ProjectResponse> {
@@ -106,7 +106,7 @@ class ProjectService {
             status: ProjectStatus.PUBLISHED,
             contractId: contract._id,
         });
-        return mapProjectToProjectResponse(updatedProject, this.storageService);
+        return mapDetailedProjectToProjectResponse(updatedProject, this.storageService);
     }
 
     public async deleteProject(projectId: string): Promise<void> {

@@ -85,3 +85,20 @@ export enum ContractStatus {
     FAILED = 'FAILED',
     PROCESSING = 'PROCESSING',
 }
+
+export type DisplayableContract = Pick<
+    Contract,
+    | '_id'
+    | 'ownerId'
+    | 'name'
+    | 'description'
+    | 'status'
+    | 'deployed'
+    | 'blockchain'
+    | 'contractType'
+    | 'contractAddress'
+    | 'transactionHash'
+    | 'version'
+    | 'createdOn'
+    | 'updatedOn'
+>;
