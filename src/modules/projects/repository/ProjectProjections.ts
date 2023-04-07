@@ -41,6 +41,7 @@ const ownerIdProjection = [
     {
         $unwind: {
             path: '$owner',
+            preserveNullAndEmptyArrays: true,
         },
     },
 ];
@@ -78,6 +79,7 @@ const contractIdProjection = [
     {
         $unwind: {
             path: '$contract',
+            preserveNullAndEmptyArrays: true,
         },
     },
 ];

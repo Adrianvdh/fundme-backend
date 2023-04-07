@@ -3,7 +3,7 @@ import { IsISO8601, IsNumberString, IsString } from 'class-validator';
 import { IStorageService } from '@/shared/storage/storage';
 import { mapDisplayableUserToUserResponse, UserResponse } from '@/modules/users/api/users.model';
 import { Category } from '@/shared/models/category.interface';
-import { FileField } from '@/shared/storage/file.interface';
+import { FileField, mapFileField } from '@/shared/storage/file.interface';
 import { ContractResponse, mapDisplayableContractToContractResponse } from '@/modules/contracts/api/contract.model';
 
 export class SaveProjectDetailsRequest {
@@ -50,13 +50,16 @@ export async function mapDetailedProjectToProjectResponse(
     project: DetailedProject,
     storageService: IStorageService,
 ): Promise<ProjectResponse> {
-    const url = await storageService.getAbsolutePath(project.image.urlPath);
+    if (!project) {
+        return undefined;
+    }
+    const mappedContributors = project?.contributors?.map(
+        async user => await mapDisplayableUserToUserResponse(user, storageService),
+    );
+    const contributors = mappedContributors ? await Promise.all(mappedContributors) : [];
     return {
         _id: project._id.toString(),
-        image: {
-            ...project.image,
-            urlPath: url,
-        },
+        image: await mapFileField(project?.image, storageService),
         title: project?.title,
         description: project?.description,
         fundGoal: project?.fundGoal,
@@ -67,8 +70,8 @@ export async function mapDetailedProjectToProjectResponse(
         created: project.created.toISOString(),
         modified: project.modified.toISOString(),
         ownerId: project.ownerId.toString(),
-        owner: mapDisplayableUserToUserResponse(project.owner),
-        contributors: project?.contributors?.map(mapDisplayableUserToUserResponse) || [],
+        owner: await mapDisplayableUserToUserResponse(project.owner, storageService),
+        contributors: contributors,
         categories: project?.categories || [],
         contractId: project.contractId?.toString(),
         contract: mapDisplayableContractToContractResponse(project.contract),

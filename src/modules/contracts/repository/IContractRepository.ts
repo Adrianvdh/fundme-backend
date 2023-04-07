@@ -1,6 +1,5 @@
 import { MongoDict } from '@/config/databases/types';
 import { Contract, IContractDeployment, IContractDetails } from '@/modules/contracts/models/contract.interface';
-import { Project, ProjectPublishState } from '@/modules/projects/models/project.interface';
 
 export interface IContractRepository {
     find(filter: MongoDict): Promise<Contract>;

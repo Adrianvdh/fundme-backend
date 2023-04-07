@@ -9,6 +9,12 @@ export interface User {
     password: string;
     picture: FileField;
     wallet: Wallet;
+    created: Date;
+    modified: Date;
 }
 
-export type DisplayableUser = Pick<User, '_id' | 'displayName' | 'email' | 'picture'>;
+export type UserDetails = Pick<User, 'email' | 'displayName' | 'password' | 'wallet'>;
+
+export type UserPicture = Pick<User, 'picture'>;
+
+export type DisplayableUser = Pick<User, '_id' | 'displayName' | 'email' | 'picture' | 'created' | 'modified'>;

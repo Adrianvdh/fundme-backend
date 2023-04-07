@@ -8,6 +8,7 @@ import {
     Project,
     ProjectDetails,
     ProjectFundGoal,
+    ProjectImage,
     ProjectPublishState,
     ProjectStatus,
 } from '@/modules/projects/models/project.interface';
@@ -53,7 +54,7 @@ export class ProjectRepository implements IProjectRepository {
         return array.length > 0 ? array[0] : null;
     }
 
-    async create(ownerId: string, project: Pick<Project, 'image' | 'published' | 'status'>): Promise<Project> {
+    async create(ownerId: string, project: ProjectImage): Promise<Project> {
         const projectDocument = {
             image: project.image,
             title: '',

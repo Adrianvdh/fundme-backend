@@ -1,6 +1,7 @@
 import { IsEmail, IsString } from 'class-validator';
-import { FileField } from '@/shared/storage/file.interface';
+import { FileField, mapFileField } from '@/shared/storage/file.interface';
 import { DisplayableUser } from '@/modules/users/models/users.interface';
+import { IStorageService } from '@/shared/storage/storage';
 
 export class CreateUserRequest {
     @IsEmail()
@@ -15,17 +16,26 @@ export class CreateUserRequest {
 
 export interface UserResponse {
     _id: string;
-    email: string;
     displayName: string;
+    email: string;
     picture: FileField;
+    created: string;
+    modified: string;
 }
 
-export function mapDisplayableUserToUserResponse(user: DisplayableUser): UserResponse {
+export async function mapDisplayableUserToUserResponse(
+    user: DisplayableUser,
+    storageService: IStorageService,
+): Promise<UserResponse> {
     if (!user) {
         return undefined;
     }
     return {
-        ...user,
         _id: user._id.toString(),
+        displayName: user.displayName,
+        email: user.email,
+        picture: await mapFileField(user?.picture, storageService),
+        created: user.created?.toISOString(),
+        modified: user.modified?.toISOString(),
     };
 }

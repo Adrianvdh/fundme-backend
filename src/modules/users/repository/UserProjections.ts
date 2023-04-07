@@ -3,4 +3,6 @@ export const userProjection = {
     displayName: 1,
     email: 1,
     picture: 1,
+    created: 1,
+    modified: 1,
 };
