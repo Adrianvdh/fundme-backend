@@ -2,9 +2,11 @@ import { compare } from 'bcrypt';
 import { isEmpty } from '@/shared/utils/util';
 import { IUserRepository } from '@/modules/users/repository/IUserRepository';
 import { User } from '@/modules/users/models/users.interface';
-import { LoginRequest, TokenData } from '@/modules/auth/api/auth.models';
+import { LoginRequest, LoginResponse } from '@/modules/auth/api/auth.models';
 import { BaseException, ValidationError } from '@/shared/exceptions/exceptions';
 import { Authenticator } from '@/modules/auth/service/authenticator';
+import { mapDisplayableUserToUserResponse } from '@/modules/users/api/users.model';
+import { IStorageService } from '@/shared/storage/storage';
 
 export class AuthenticationException extends BaseException {
     public statusCode = 400;
@@ -14,9 +16,9 @@ export class AuthenticationException extends BaseException {
 }
 
 class AuthService {
-    constructor(private userRepository: IUserRepository) {}
+    constructor(private userRepository: IUserRepository, private storageService: IStorageService) {}
 
-    public async login(userData: LoginRequest): Promise<{ tokenData: TokenData; cookie: string }> {
+    public async login(userData: LoginRequest): Promise<LoginResponse> {
         if (isEmpty(userData)) {
             throw new ValidationError('Empty request!');
         }
@@ -33,9 +35,12 @@ class AuthService {
 
         const authenticator = new Authenticator();
         const tokenData = authenticator.createToken(findUser);
-        const cookie = authenticator.createCookie(tokenData);
+        const userResponse = await mapDisplayableUserToUserResponse(findUser, this.storageService);
 
-        return { tokenData, cookie };
+        return {
+            ...tokenData,
+            user: userResponse,
+        };
     }
 }
 

@@ -1,4 +1,4 @@
-import { DetailedProject, Project, ProjectStatus } from '@/modules/projects/models/project.interface';
+import { DetailedProject, ProjectStatus } from '@/modules/projects/models/project.interface';
 import { IsISO8601, IsNumberString, IsString } from 'class-validator';
 import { IStorageService } from '@/shared/storage/storage';
 import { mapDisplayableUserToUserResponse, UserResponse } from '@/modules/users/api/users.model';
