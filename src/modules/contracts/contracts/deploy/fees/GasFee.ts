@@ -1,7 +1,8 @@
 import { FeeData, JsonRpcProvider, TransactionRequest } from '@ethersproject/providers';
 import axios, { AxiosResponse } from 'axios';
 import { BigNumber, utils } from 'ethers';
-import { Blockchain } from '@/modules/contracts/contracts/model/contract.model';
+import { Blockchain } from '@/shared/blockchain/model/blockchain.model';
+
 
 export type Fees = {
     maxPriorityFeePerGas: BigNumber; // Max Priority Fee

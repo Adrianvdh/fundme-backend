@@ -1,20 +1,17 @@
 import * as mongodb from 'mongodb';
 import { ObjectId } from 'mongodb';
 import { IUserRepository } from '@/modules/users/repository/IUserRepository';
-import { User } from '@/modules/users/models/users.interface';
+import { User, UserDetails, UserPicture } from '@/modules/users/models/users.interface';
 import { MongoConnection } from '@/config/databases/mongodb';
-import { MongoDict } from '@/config/databases/types';
 import { DatabaseConnection } from '@/config/databases/connection';
+import { MongoDict } from '@/config/databases/types';
+import { MongoException } from '@/shared/exceptions/exceptions';
 
 export class UserRepository implements IUserRepository {
     private readonly users: mongodb.Collection<User>;
 
     constructor(private databaseConnection: DatabaseConnection) {
         this.users = (this.databaseConnection as MongoConnection).db.collection<User>('users');
-    }
-
-    async find(filter: MongoDict): Promise<User> {
-        return await this.users.findOne(filter);
     }
 
     async findOneById(userId: string): Promise<User> {
@@ -26,22 +23,50 @@ export class UserRepository implements IUserRepository {
     }
 
     async findAll(): Promise<User[]> {
-        return await this.users.find().toArray();
+        let newVar = await this.users.find().toArray();
+        return newVar;
     }
 
-    async create(user: User): Promise<User> {
-        const result = await this.users.insertOne(user);
-        return { _id: result.insertedId, ...user };
+    async create(user: UserDetails): Promise<User> {
+        const userDocument = {
+            displayName: user.displayName,
+            email: user.email,
+            password: user.password,
+            picture: null,
+            wallet: user.wallet,
+            created: new Date(),
+            modified: new Date(),
+        };
+        const result = await this.users.insertOne(userDocument);
+        return await this.findOneById(result.insertedId.toString());
     }
 
     async updateOne(userId: string, user: User): Promise<User> {
         const update = {
             $set: {
-                email: user.email,
+                ...user,
+                modified: new Date(),
             },
         };
-        await this.users.updateOne({ _id: new ObjectId(userId) }, update);
-        return { _id: new ObjectId(userId), ...user };
+        return await this.updateUser(userId, update);
+    }
+
+    async updateUserPicture(userId: string, user: UserPicture): Promise<User> {
+        const update = {
+            $set: {
+                ...user,
+                modified: new Date(),
+            },
+        };
+        return await this.updateUser(userId, update);
+    }
+
+    private async updateUser(userId: string, update: MongoDict): Promise<User> {
+        const result = await this.users.updateOne({ _id: new ObjectId(userId) }, update);
+        if (result.modifiedCount === 0) {
+            throw new MongoException('Failed to update the user!');
+        }
+        return await this.findOneById(userId);
     }
 
     async deleteOne(userId: string): Promise<void> {

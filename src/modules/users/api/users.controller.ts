@@ -1,6 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import UserService from '@/modules/users/service/users.service';
 import { CreateUserRequest, UserResponse } from '@/modules/users/api/users.model';
+import { RequestWithUser } from '@/modules/auth/api/auth.models';
+import { File } from '@/shared/http/file';
+import { HttpResponse } from '@/shared/http/httpResponse';
 
 class UsersController {
     constructor(private userService: UserService) {}
@@ -44,6 +47,17 @@ class UsersController {
             const userResponse: UserResponse = await this.userService.updateUser(userId, userData);
 
             res.status(200).json(userResponse);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    public updateUserProfilePicture = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+        try {
+            const file = new File(req.file);
+            const userResponse: UserResponse = await this.userService.updateUserProfilePicture(req.userId, file);
+
+            return HttpResponse.ok(res, userResponse);
         } catch (error) {
             next(error);
         }

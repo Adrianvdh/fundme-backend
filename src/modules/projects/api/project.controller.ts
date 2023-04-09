@@ -1,6 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 import ProjectService from '@/modules/projects/service/project.service';
-import { ProjectResponse, SaveProjectDetailsRequest, SaveProjectFundGoalRequest } from '@/modules/projects/api/project.model';
+import {
+    ProjectResponse,
+    SaveProjectDetailsRequest,
+    SaveProjectFundGoalRequest,
+} from '@/modules/projects/api/project.model';
 import { RequestWithUser } from '@/modules/auth/api/auth.models';
 import { File } from '@/shared/http/file';
 import { HttpResponse } from '@/shared/http/httpResponse';
@@ -56,7 +60,10 @@ class ProjectController {
         try {
             const projectId: string = req.params.id;
             const requestData: SaveProjectDetailsRequest = req.body;
-            const projectResponse: ProjectResponse = await this.projectService.saveProjectDetails(projectId, requestData);
+            const projectResponse: ProjectResponse = await this.projectService.saveProjectDetails(
+                projectId,
+                requestData,
+            );
 
             return HttpResponse.ok(res, projectResponse);
         } catch (error) {

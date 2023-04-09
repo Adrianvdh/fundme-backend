@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import AuthService from '@/modules/auth/service/auth.service';
-import { LoginRequest } from '@/modules/auth/api/auth.models';
+import { LoginRequest, LoginResponse } from '@/modules/auth/api/auth.models';
 import { CreateUserRequest, UserResponse } from '@/modules/users/api/users.model';
 import UserService from '@/modules/users/service/users.service';
 
@@ -21,9 +21,9 @@ class AuthController {
     public logIn = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const userData: LoginRequest = req.body;
-            const { tokenData } = await this.authService.login(userData);
+            const loginResponse: LoginResponse = await this.authService.login(userData);
 
-            res.status(200).json(tokenData);
+            res.status(200).json(loginResponse);
         } catch (error) {
             next(error);
         }

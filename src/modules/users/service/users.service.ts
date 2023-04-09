@@ -1,20 +1,22 @@
 import { hash } from 'bcrypt';
-import { User } from '@/modules/users/models/users.interface';
+import { DisplayableUser, User } from '@/modules/users/models/users.interface';
 import { isEmpty } from '@/shared/utils/util';
 import { IUserRepository } from '@/modules/users/repository/IUserRepository';
 import { NotFound, ValidationError } from '@/shared/exceptions/exceptions';
-import { CreateUserRequest, UserResponse } from '@/modules/users/api/users.model';
+import { CreateUserRequest, mapDisplayableUserToUserResponse, UserResponse } from '@/modules/users/api/users.model';
 import { createWallet } from '@/shared/blockchain/wallet/Wallet';
 import { Blockchain } from '@/shared/blockchain/model/blockchain.model';
+import { File } from '@/shared/http/file';
+import { IStorageService } from '@/shared/storage/storage';
 
 class UserService {
-    constructor(private userRepository: IUserRepository) {}
+    constructor(private userRepository: IUserRepository, private storageService: IStorageService) {}
 
     public async findAllUser(): Promise<UserResponse[]> {
-        return (await this.userRepository.findAll()).map(user => ({
-            _id: user._id.toString(),
-            email: user.email,
-        }));
+        const mappedUsers = (await this.userRepository.findAll()).map(user =>
+            mapDisplayableUserToUserResponse(user, this.storageService),
+        );
+        return await Promise.all(mappedUsers);
     }
 
     public async findUserById(userId: string): Promise<UserResponse> {
@@ -27,10 +29,7 @@ class UserService {
             throw new NotFound("User doesn't exist");
         }
 
-        return {
-            _id: user._id.toString(),
-            email: user.email,
-        };
+        return mapDisplayableUserToUserResponse(user, this.storageService);
     }
 
     public async createUser(userData: CreateUserRequest): Promise<UserResponse> {
@@ -38,7 +37,7 @@ class UserService {
             throw new ValidationError('Empty request!');
         }
 
-        const findUser: User = await this.userRepository.findOneByEmail(userData.email);
+        const findUser: DisplayableUser = await this.userRepository.findOneByEmail(userData.email);
         if (findUser) {
             throw new ValidationError({ email: `This email ${userData.email} already exists` });
         }
@@ -56,10 +55,7 @@ class UserService {
             },
         });
 
-        return {
-            _id: user._id.toString(),
-            email: user.email,
-        };
+        return mapDisplayableUserToUserResponse(user, this.storageService);
     }
 
     public async updateUser(userId: string, userData: CreateUserRequest): Promise<UserResponse> {
@@ -73,23 +69,32 @@ class UserService {
             throw new ValidationError({ email: `This email ${userData.email} already exists` });
         }
 
-        let updatedUserDate = {
+        let updatedUserData = {
             ...findUser,
             ...userData,
         };
         if (userData.password) {
             const hashedPassword = await hash(userData.password, 10);
-            updatedUserDate = { ...updatedUserDate, password: hashedPassword };
+            updatedUserData = { ...updatedUserData, password: hashedPassword };
         }
 
-        const user: User = await this.userRepository.updateOne(userId, updatedUserDate);
+        const user: User = await this.userRepository.updateOne(userId, updatedUserData);
         if (!user) {
             throw new NotFound("User doesn't exist");
         }
-        return {
-            _id: user._id.toString(),
-            email: user.email,
-        };
+        return mapDisplayableUserToUserResponse(user, this.storageService);
+    }
+
+    public async updateUserProfilePicture(userId: string, file: File): Promise<UserResponse> {
+        const result = await this.storageService.uploadFile('users/pictures', 'image.png', file.buffer());
+
+        const user: User = await this.userRepository.updateUserPicture(userId, {
+            picture: {
+                urlPath: result.relativePath(),
+                fileType: file.mimeType(),
+            },
+        });
+        return mapDisplayableUserToUserResponse(user, this.storageService);
     }
 
     public async deleteUser(userId: string): Promise<void> {

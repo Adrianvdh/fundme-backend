@@ -1,8 +1,7 @@
-import { User } from '@/modules/users/models/users.interface';
-import { MongoDict } from '@/config/databases/types';
+import { User, UserDetails, UserPicture } from '@/modules/users/models/users.interface';
 
 export interface IUserRepository {
-    find(filter: MongoDict): Promise<User>;
+    findOneById(userId: string): Promise<User>;
 
     findOneById(userId: string): Promise<User>;
 
@@ -10,9 +9,11 @@ export interface IUserRepository {
 
     findAll(): Promise<User[]>;
 
-    create(user: User): Promise<User>;
+    create(user: UserDetails): Promise<User>;
 
     updateOne(userId: string, user: User): Promise<User>;
+
+    updateUserPicture(userId: string, user: UserPicture): Promise<User>;
 
     deleteOne(userId: string);
 }
