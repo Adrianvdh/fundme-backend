@@ -117,6 +117,14 @@ class ProjectService {
 
         await this.projectRepository.deleteOne(projectId);
     }
+
+    public async getProjectContractAddress(projectId: string): Promise<string> {
+        const project: Project = await this.projectRepository.findOneById(projectId);
+        if (!project) {
+            throw new NotFound("Project doesn't exist");
+        }
+        return (await this.contractService.getContract(project.contractId.toString())).address();
+    }
 }
 
 export default ProjectService;

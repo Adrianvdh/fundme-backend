@@ -6,16 +6,26 @@ import AuthController from '@/modules/auth/api/auth.controller';
 import AuthRoutes from '@/modules/auth/api/auth.routes';
 import UserService from '@/modules/users/service/users.service';
 import { NoopStorageService } from '@/shared/storage/noopStorage';
+import { DatabaseConnection } from '@/config/databases/connection';
+
+export function authServiceFactory(databaseConnection: DatabaseConnection): {
+    authService: AuthService;
+    userService: UserService;
+    userRepository: UserRepository;
+} {
+    const userRepository = new UserRepository(databaseConnection);
+    const storageService = new NoopStorageService();
+    const authService = new AuthService(userRepository, storageService);
+    const userService = new UserService(userRepository, storageService);
+    return { authService, userService, userRepository };
+}
 
 export class AuthModule extends Module {
     public routes: Routes;
 
     protected setup() {
-        const repository = new UserRepository(this.databaseConnection);
-        const storageService = new NoopStorageService();
-        const authService = new AuthService(repository, storageService);
-        const userService = new UserService(repository, storageService);
+        const { authService, userService, userRepository } = authServiceFactory(this.databaseConnection);
         const controller = new AuthController(authService, userService);
-        this.routes = new AuthRoutes(controller, repository);
+        this.routes = new AuthRoutes(controller, userRepository);
     }
 }

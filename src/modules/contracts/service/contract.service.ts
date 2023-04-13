@@ -112,6 +112,6 @@ export class ContractService {
     public async getContract(contractId: string): Promise<FundMeBlockchainContract> {
         const modelContract = await this.contractRepository.findOneById(contractId);
         const connector = new ContractConnector(modelContract);
-        return connector.connectReadWrite(FundMeBlockchainContract);
+        return connector.connectReadonly(FundMeBlockchainContract);
     }
 }

@@ -3,6 +3,7 @@ export enum Blockchain {
     POLYGON = 'POLYGON',
 }
 
+
 export type Wallet = {
     address: string;
     keys: WalletKeys;

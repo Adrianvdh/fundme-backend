@@ -3,6 +3,7 @@ import { ethers } from 'ethers';
 import { rpcUrlFromBlockchain } from '@/config/rpc/rpcGateway';
 import { BaseException } from '@/shared/exceptions/exceptions';
 import { TransactionReceipt } from '@ethersproject/abstract-provider';
+import { Currency, MonetaryAmount } from '@/modules/payments/models/payment.interface';
 
 export class VerificationException extends BaseException {
     constructor(message: string) {
@@ -12,23 +13,46 @@ export class VerificationException extends BaseException {
 
 export class CryptoPayment {
     private readonly MIN_BLOCK_CONFIRMATIONS = 10;
+    private readonly ROUNDING_DECIMALS = 18;
     private readonly provider: ethers.providers.JsonRpcProvider;
 
     constructor(private blockchain: Blockchain) {
         this.provider = new ethers.providers.JsonRpcProvider(rpcUrlFromBlockchain(blockchain));
     }
 
-    public async verify(transactionAddress: string, recipientAddress: string): Promise<TransactionReceipt> {
-        const receipt = await this.provider.waitForTransaction(transactionAddress, this.MIN_BLOCK_CONFIRMATIONS);
-        const transactionResponse = await this.provider.getTransaction(transactionAddress);
+    /**
+     *
+     * @param transactionHash
+     * @param contractAddress
+     * @param monetaryAmount
+     */
+    public async verify(
+        transactionHash: string,
+        contractAddress: string,
+        monetaryAmount: MonetaryAmount,
+    ): Promise<TransactionReceipt> {
+        const receipt = await this.provider.waitForTransaction(transactionHash, this.MIN_BLOCK_CONFIRMATIONS);
+        const transactionResponse = await this.provider.getTransaction(transactionHash);
 
         if (receipt.status === 0) {
             throw new VerificationException(`Transaction verification failed with status "${receipt.status}"`);
         }
-        if (receipt.to !== recipientAddress) {
+        if (receipt.to !== contractAddress) {
             throw new VerificationException(
-                `Transaction recipient dispatch! Excepted "${recipientAddress}" Got "${receipt.to}"`,
+                `Transaction recipient dispatch! Excepted "${contractAddress}" Got "${receipt.to}"`,
             );
+        }
+
+        if (monetaryAmount.currency === Currency.XDAI) {
+            const amountFromOffChainRecords = ethers.utils.parseUnits(
+                monetaryAmount.amount.toString(),
+                this.ROUNDING_DECIMALS,
+            );
+            if (!transactionResponse.value.eq(amountFromOffChainRecords))
+                throw new Error(
+                    `Amount mismatch, amountFromOffChainRecords: ${amountFromOffChainRecords.toNumber()}, transaction: ${transactionResponse.value.toNumber()}`,
+                );
+            return;
         }
         return receipt;
     }

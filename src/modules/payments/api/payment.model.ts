@@ -5,7 +5,7 @@ import {
     PaymentItem,
     PaymentProvider,
     PaymentStatus,
-    TransactionType
+    TransactionType,
 } from '@/modules/payments/models/payment.interface';
 import { Blockchain } from '@/shared/blockchain/model/blockchain.model';
 import { IsEnum, IsMongoId, IsNumberString, IsString } from 'class-validator';
@@ -27,19 +27,24 @@ export class InitializePaymentRequest {
     itemId: string;
 
     @IsString()
-    itemType: string;
+    itemType: 'PROJECT';
 }
 
-export class VerifyPaymentRequest {}
+export class VerifyPaymentRequest {
+    @IsString()
+    transactionAddress: string;
+}
 
 export interface PaymentResponse {
     _id?: string;
     ownerId: string;
     status: PaymentStatus;
+    failReason?: string;
     value: MonetaryAmount;
     transactions: TransactionResponse[];
     item: PaymentItem;
-    timestamp: string;
+    initiated: string;
+    verified: string;
 }
 
 export interface TransactionResponse {
@@ -72,9 +77,11 @@ export async function mapDetailedPaymentToPaymentResponse(payment: DetailedPayme
         _id: payment._id.toString(),
         ownerId: payment.ownerId.toString(),
         status: payment?.status,
+        failReason: payment?.failReason,
         value: payment?.value,
         transactions: [],
         item: payment?.item,
-        timestamp: payment?.timestamp?.toISOString(),
+        initiated: payment?.initiated?.toISOString(),
+        verified: payment?.verified?.toISOString(),
     };
 }

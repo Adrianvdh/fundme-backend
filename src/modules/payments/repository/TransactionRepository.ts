@@ -1,44 +1,28 @@
 import * as mongodb from 'mongodb';
-import { ObjectId } from 'mongodb';
 import { MongoConnection } from '@/config/databases/mongodb';
 import { DatabaseConnection } from '@/config/databases/connection';
-import { DetailedProject, Project } from '@/modules/projects/models/project.interface';
+import { Transaction } from '@/modules/payments/models/payment.interface';
+import { ITransactionRepository } from '@/modules/payments/repository/ITransactionRepository';
 import { MongoException } from '@/shared/exceptions/exceptions';
-import { Payment } from '@/modules/payments/models/payment.interface';
-import { ITransactionRepository } from '@/modules/transactions/repository/ITransactionRepository';
 
 export class TransactionRepository implements ITransactionRepository {
-    private readonly payments: mongodb.Collection<Payment>;
+    private readonly transactions: mongodb.Collection<Transaction>;
 
     constructor(private databaseConnection: DatabaseConnection) {
-        this.payments = (this.databaseConnection as MongoConnection).db.collection<Payment>('payments');
+        this.transactions = (this.databaseConnection as MongoConnection).db.collection<Transaction>('transactions');
     }
 
-    async findOneById(projectId: string): Promise<DetailedProject> {
-        const queryResult = await this.payments.aggregate<DetailedProject>([
-            {
-                $match: {
-                    _id: new ObjectId(projectId),
-                },
-            },
-        ]);
-
-        const result = await queryResult.toArray();
-        return result.length === 1 ? result[0] : null;
+    async findAllByPaymentId(paymentId: string): Promise<Transaction[]> {
+        return Promise.resolve([]);
     }
 
-    async findAll(): Promise<DetailedProject[]> {
-        const queryResult = await this.payments.aggregate<DetailedProject>([]);
-
-        return await queryResult.toArray();
-    }
-
-    async create(ownerId: string): Promise<Project> {
-        const projectDocument = {};
-        const result = await this.payments.insertOne(projectDocument);
-        if (!result.insertedId) {
+    async saveBatch(paymentId: string, transactions: Transaction[]): Promise<Transaction[]> {
+        const result = await this.transactions.insertMany(transactions);
+        if (!result.insertedIds) {
             throw new MongoException('Failed to save the project!');
         }
-        return await this.findOneById(result.insertedId.toString());
+        return await this.findAllByPaymentId(paymentId);
     }
+
+
 }

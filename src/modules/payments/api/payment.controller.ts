@@ -46,10 +46,7 @@ class PaymentController {
         try {
             const paymentId: string = req.params.id;
             const requestData: VerifyPaymentRequest = req.body;
-            const paymentResponse: PaymentResponse = await this.paymentsService.verifyPayment(
-                paymentId,
-                requestData,
-            );
+            const paymentResponse: PaymentResponse = await this.paymentsService.verifyPayment(paymentId, requestData);
 
             return HttpResponse.ok(res, paymentResponse);
         } catch (error) {

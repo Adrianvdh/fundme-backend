@@ -1,11 +1,9 @@
 import { ObjectId } from 'mongodb';
 import { DisplayableUser } from '@/modules/users/models/users.interface';
 import { Blockchain } from '@/shared/blockchain/model/blockchain.model';
-import { Contract } from '@/modules/contracts/models/contract.interface';
 
 export enum Currency {
     XDAI = 'XDAI',
-    MATIC = 'MATIC',
 }
 
 export type MonetaryAmount = {
@@ -26,6 +24,7 @@ export enum PaymentStatus {
 
 export interface PaymentItem {
     id: ObjectId;
+    type: 'PROJECT';
 }
 
 export type TransactionType = 'FEE' | 'PAYMENT' | 'WITHDRAWAL';
@@ -34,14 +33,20 @@ export interface Payment {
     _id?: ObjectId;
     ownerId: ObjectId;
     status: PaymentStatus;
+    failReason?: string;
     paymentProvider: PaymentProvider;
     value: MonetaryAmount;
     transactionIds: Array<ObjectId>;
     item: PaymentItem;
-    timestamp: Date;
+    initiated: Date;
+    verified?: Date;
 }
 
 export type InitialPayment = Pick<Payment, 'value' | 'paymentProvider' | 'item'>;
+
+export type PaymentVerified = Pick<Payment, 'transactionIds' | 'status'>;
+
+export type FailedPayment = Pick<Payment, 'status' | 'failReason'>;
 
 export type DetailedPayment = Payment & {
     owner?: DisplayableUser;
