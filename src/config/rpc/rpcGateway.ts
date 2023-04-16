@@ -3,10 +3,10 @@ import { Blockchain } from '@/shared/blockchain/model/blockchain.model';
 
 export function rpcUrlFromBlockchain(blockchain: Blockchain) {
     switch (blockchain) {
-        case 'XDAI': {
+        case 'ETHEREUM': {
             return RPC_URL;
         }
-        case 'POLYGON': {
+        case 'GNOSIS': {
             return RPC_URL;
         }
     }

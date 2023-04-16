@@ -51,7 +51,7 @@ export class ContractService {
             description,
             onChainUrl: '',
             // TODO centralise blockchain type
-            blockchain: Blockchain.POLYGON,
+            blockchain: Blockchain.GNOSIS,
             contractType: ContractType.ERC1155,
             deployerKeys: {
                 public: null,
