@@ -9,6 +9,7 @@ export const contractProjection = {
     contractType: 1,
     contractAddress: 1,
     transactionHash: 1,
+    abi: 1,
     version: 1,
     createdOn: 1,
     updatedOn: 1,

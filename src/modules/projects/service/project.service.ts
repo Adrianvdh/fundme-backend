@@ -123,7 +123,7 @@ class ProjectService {
         if (!project) {
             throw new NotFound("Project doesn't exist");
         }
-        return (await this.contractService.getContract(project.contractId.toString())).address();
+        return (await this.contractService.getContractInstance(project.contractId.toString())).address();
     }
 }
 

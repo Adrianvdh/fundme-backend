@@ -48,6 +48,7 @@ class PaymentService {
                 blockchain: requestData.blockchain,
             },
             paymentProvider: requestData.paymentProvider,
+            // TODO Create item resolver to get the project contract details and return in response
             item: {
                 id: new ObjectId(requestData.itemId),
                 type: requestData.itemType,

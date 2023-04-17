@@ -6,6 +6,7 @@ import { DatabaseConnection } from '@/config/databases/connection';
 import { IContractRepository } from '@/modules/contracts/repository/IContractRepository';
 import { Contract, IContractDeployment, IContractDetails } from '@/modules/contracts/models/contract.interface';
 import { MongoException } from '@/shared/exceptions/exceptions';
+import { contractProjection } from '@/modules/contracts/repository/ContractProjections';
 
 export class ContractRepository implements IContractRepository {
     private readonly contracts: mongodb.Collection<Contract>;
@@ -14,12 +15,20 @@ export class ContractRepository implements IContractRepository {
         this.contracts = (this.databaseConnection as MongoConnection).db.collection<Contract>('contracts');
     }
 
-    async find(filter: MongoDict): Promise<Contract> {
-        return await this.contracts.findOne(filter);
-    }
-
     async findOneById(contractId: string): Promise<Contract> {
-        return await this.contracts.findOne({ _id: new ObjectId(contractId) });
+        const queryResult = await this.contracts.aggregate<Contract>([
+            {
+                $match: {
+                    _id: new ObjectId(contractId),
+                },
+            },
+            {
+                $project: contractProjection,
+            },
+        ]);
+
+        const result = await queryResult.toArray();
+        return result.length === 1 ? result[0] : null;
     }
 
     async create(contract: IContractDetails): Promise<Contract> {
@@ -38,7 +47,7 @@ export class ContractRepository implements IContractRepository {
             // Meta
             version: contract.version,
             createdOn: contract.createdOn,
-            updatedOn: contract.updatedOn,
+            updatedOn: contract.updatedOn
         } as Contract;
         const result = await this.contracts.insertOne(contractDocument);
         if (!result.insertedId) {
@@ -50,8 +59,8 @@ export class ContractRepository implements IContractRepository {
     async updateDeploymentDetails(contractId: string, contract: IContractDeployment): Promise<Contract> {
         const update = {
             $set: {
-                ...contract,
-            },
+                ...contract
+            }
         };
         return await this.updateContract(contractId, update);
     }
@@ -60,8 +69,8 @@ export class ContractRepository implements IContractRepository {
         const update = {
             $set: {
                 status: status.status,
-                deployed: status.deployed,
-            },
+                deployed: status.deployed
+            }
         };
 
         return await this.updateContract(contractId, update);

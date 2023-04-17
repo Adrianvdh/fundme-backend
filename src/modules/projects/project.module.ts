@@ -7,7 +7,7 @@ import ProjectService from '@/modules/projects/service/project.service';
 import { ProjectRepository } from '@/modules/projects/repository/ProjectRepository';
 import { NoopStorageService } from '@/shared/storage/noopStorage';
 import { DatabaseConnection } from '@/config/databases/connection';
-import { contractServiceFactory } from '@/modules/contracts';
+import { contractServiceFactory } from '@/modules/contracts/contract.module';
 
 export function projectServiceFactory(databaseConnection: DatabaseConnection): {
     projectService: ProjectService;

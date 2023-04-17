@@ -4,6 +4,7 @@ import { Category } from '@/shared/models/category.interface';
 import { FileField } from '@/shared/storage/file.interface';
 import { DisplayableContract } from '@/modules/contracts/models/contract.interface';
 import { PaymentItem } from '@/modules/payments/models/payment.interface';
+import { ContractResponse } from '@/modules/contracts/api/contract.model';
 
 export interface Project {
     _id?: ObjectId;
@@ -52,5 +53,5 @@ export enum ProjectStatus {
 }
 
 export interface ProjectItem extends PaymentItem {
-    projectId: ObjectId;
+    contractId: ObjectId;
 }
