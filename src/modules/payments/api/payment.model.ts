@@ -2,13 +2,15 @@ import {
     Currency,
     DetailedPayment,
     MonetaryAmount,
-    PaymentItem,
     PaymentProvider,
     PaymentStatus,
-    TransactionType,
+    TransactionType
 } from '@/modules/payments/models/payment.interface';
 import { Blockchain } from '@/shared/blockchain/model/blockchain.model';
 import { IsEnum, IsMongoId, IsNumberString, IsString } from 'class-validator';
+import { ProjectResponse } from '@/modules/projects/api/project.model';
+import { ProjectPaymentResolver } from '@/modules/projects/service/ProjectPaymentResolver';
+import ProjectService from '@/modules/projects/service/project.service';
 
 export class InitializePaymentRequest {
     @IsNumberString()
@@ -42,7 +44,7 @@ export interface PaymentResponse {
     failReason?: string;
     value: MonetaryAmount;
     transactions: TransactionResponse[];
-    item: PaymentItem;
+    item: ProjectResponse; // TODO or any other type
     initiated: string;
     verified: string;
 }
@@ -69,7 +71,10 @@ export interface TransactionResponse {
     updatedOn: string;
 }
 
-export async function mapDetailedPaymentToPaymentResponse(payment: DetailedPayment): Promise<PaymentResponse> {
+export async function mapDetailedPaymentToPaymentResponse(
+    payment: DetailedPayment,
+    projectService: ProjectService,
+): Promise<PaymentResponse> {
     if (!payment) {
         return undefined;
     }
@@ -80,7 +85,7 @@ export async function mapDetailedPaymentToPaymentResponse(payment: DetailedPayme
         failReason: payment?.failReason,
         value: payment?.value,
         transactions: [],
-        item: payment?.item,
+        item: await new ProjectPaymentResolver(projectService).resolve(payment?.item),
         initiated: payment?.initiated?.toISOString(),
         verified: payment?.verified?.toISOString(),
     };

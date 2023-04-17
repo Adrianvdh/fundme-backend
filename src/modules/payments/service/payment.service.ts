@@ -23,7 +23,7 @@ class PaymentService {
 
     public async findAllPayments(): Promise<PaymentResponse[]> {
         const mappedPayments = (await this.paymentRepository.findAll()).map(payment =>
-            mapDetailedPaymentToPaymentResponse(payment),
+            mapDetailedPaymentToPaymentResponse(payment, this.projectService),
         );
         return await Promise.all(mappedPayments);
     }
@@ -37,7 +37,7 @@ class PaymentService {
         if (!payment) {
             throw new NotFound("Project doesn't exist");
         }
-        return mapDetailedPaymentToPaymentResponse(payment);
+        return mapDetailedPaymentToPaymentResponse(payment, this.projectService);
     }
 
     public async initialisePayment(ownerId: string, requestData: InitializePaymentRequest): Promise<PaymentResponse> {
@@ -54,7 +54,7 @@ class PaymentService {
                 type: requestData.itemType,
             },
         });
-        return mapDetailedPaymentToPaymentResponse(payment);
+        return mapDetailedPaymentToPaymentResponse(payment, this.projectService);
     }
 
     public async verifyPayment(paymentId: string, requestData: VerifyPaymentRequest): Promise<PaymentResponse> {
@@ -71,7 +71,7 @@ class PaymentService {
                     status: PaymentStatus.FAILED,
                     failReason: e.message,
                 });
-                return mapDetailedPaymentToPaymentResponse(updatedPayment);
+                return mapDetailedPaymentToPaymentResponse(updatedPayment, this.projectService);
             }
         } else {
             throw new ValidationError('Payment provider not supported!');
@@ -83,7 +83,7 @@ class PaymentService {
             transactionIds,
             status: PaymentStatus.PAID,
         });
-        return mapDetailedPaymentToPaymentResponse(updatedPayment);
+        return mapDetailedPaymentToPaymentResponse(updatedPayment, this.projectService);
     }
 }
 
