@@ -44,7 +44,7 @@ class UserService {
 
         const hashedPassword = await hash(userData.password, 10);
         // TODO centralise blockchain type
-        const wallet = createWallet(Blockchain.POLYGON);
+        const wallet = createWallet(Blockchain.GNOSIS);
 
         const user = await this.userRepository.create({
             ...userData,

@@ -13,6 +13,7 @@ export interface ContractResponse {
     blockchain: Blockchain;
     contractType: ContractType;
     contractAddress: string;
+    abi: string;
     transactionHash: string;
     // Meta
     version: string;

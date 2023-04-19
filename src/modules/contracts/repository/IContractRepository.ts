@@ -1,10 +1,10 @@
-import { MongoDict } from '@/config/databases/types';
 import { Contract, IContractDeployment, IContractDetails } from '@/modules/contracts/models/contract.interface';
+import { ContractConnectorDetails } from '@/modules/contracts/contracts/model/contract.model';
 
 export interface IContractRepository {
-    find(filter: MongoDict): Promise<Contract>;
-
     findOneById(contractId: string): Promise<Contract>;
+
+    findOneContractConnectorDetailsById(contractId: string): Promise<ContractConnectorDetails>;
 
     create(contract: IContractDetails): Promise<Contract>;
 

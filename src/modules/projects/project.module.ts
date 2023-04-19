@@ -6,28 +6,27 @@ import ProjectController from '@/modules/projects/api/project.controller';
 import ProjectService from '@/modules/projects/service/project.service';
 import { ProjectRepository } from '@/modules/projects/repository/ProjectRepository';
 import { NoopStorageService } from '@/shared/storage/noopStorage';
-import { ContractService } from '@/modules/contracts/service/contract.service';
-import { ContractRepository } from '@/modules/contracts/repository/ContractRepository';
-import { FundMeContractCompiler } from '@/modules/contracts/contracts/lib/compile/FundMeContractCompiler';
-import { ContractDeployer } from '@/modules/contracts/contracts/deploy/ContractDeployer';
-import { FakeContractDeployer } from '@/modules/contracts/contracts/deploy/FakeContractDeployer';
+import { DatabaseConnection } from '@/config/databases/connection';
+import { contractServiceFactory } from '@/modules/contracts/contract.module';
+
+export function projectServiceFactory(databaseConnection: DatabaseConnection): {
+    projectService: ProjectService;
+    projectRepository: ProjectRepository;
+    userRepository: UserRepository;
+} {
+    const projectRepository = new ProjectRepository(databaseConnection);
+    // Contract Service
+    const { contractService, userRepository } = contractServiceFactory(databaseConnection);
+    // Project Service
+    const projectService = new ProjectService(projectRepository, contractService, new NoopStorageService());
+    return { projectService, projectRepository, userRepository };
+}
 
 export class ProjectModule extends Module {
     public routes: Routes;
 
     protected setup() {
-        const userRepository = new UserRepository(this.databaseConnection);
-        const projectRepository = new ProjectRepository(this.databaseConnection);
-        const contractRepository = new ContractRepository(this.databaseConnection);
-        // Contract Service
-        const contractService = new ContractService(
-            userRepository,
-            contractRepository,
-            new FundMeContractCompiler(),
-            new ContractDeployer(),
-        );
-        // Project Service
-        const projectService = new ProjectService(projectRepository, contractService, new NoopStorageService());
+        const { userRepository, projectRepository, projectService } = projectServiceFactory(this.databaseConnection);
         const projectController = new ProjectController(projectService);
 
         this.routes = new ProjectRoutes(projectController, projectRepository, userRepository);

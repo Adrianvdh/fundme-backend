@@ -4,16 +4,18 @@ import {
     Contract,
     ContractDeployment,
     ContractDetails,
-    ContractStatus,
+    ContractStatus
 } from '@/modules/contracts/models/contract.interface';
 import { FundMeBlockchainContract } from '@/modules/contracts/contracts/FundMeBlockchainContract';
 import { ContractConnector } from '@/modules/contracts/contracts/connect/ContractConnector';
-import { BaseException } from '@/shared/exceptions/exceptions';
+import { BaseException, NotFound, ValidationError } from '@/shared/exceptions/exceptions';
 import { CompilationDetails, ContractCompiler } from '@/modules/contracts/contracts/lib/compile/ContractCompiler';
 import { BlockchainContract } from '@/modules/contracts/contracts/BlockchainContract';
 import { IContractDeployer } from '@/modules/contracts/contracts/deploy/IContractDeployer';
 import { IUserRepository } from '@/modules/users/repository/IUserRepository';
 import { Blockchain } from '@/shared/blockchain/model/blockchain.model';
+import { isEmpty } from '@/shared/utils/util';
+import { ContractResponse, mapDisplayableContractToContractResponse } from '@/modules/contracts/api/contract.model';
 
 export class ContractServiceException extends BaseException {
     constructor(message: string, public contract: Contract) {
@@ -51,7 +53,7 @@ export class ContractService {
             description,
             onChainUrl: '',
             // TODO centralise blockchain type
-            blockchain: Blockchain.POLYGON,
+            blockchain: Blockchain.GNOSIS,
             contractType: ContractType.ERC1155,
             deployerKeys: {
                 public: null,
@@ -109,9 +111,22 @@ export class ContractService {
         }
     }
 
-    public async getContract(contractId: string): Promise<FundMeBlockchainContract> {
-        const modelContract = await this.contractRepository.findOneById(contractId);
+    public async getContractInstance(contractId: string): Promise<FundMeBlockchainContract> {
+        const modelContract = await this.contractRepository.findOneContractConnectorDetailsById(contractId);
         const connector = new ContractConnector(modelContract);
-        return connector.connectReadWrite(FundMeBlockchainContract);
+        return connector.connectReadonly(FundMeBlockchainContract);
+    }
+
+    public async getContractById(contractId: string): Promise<ContractResponse> {
+        if (isEmpty(contractId)) {
+            throw new ValidationError('Empty request!');
+        }
+
+        const contract: Contract = await this.contractRepository.findOneById(contractId);
+        if (!contract) {
+            throw new NotFound("Contract doesn't exist");
+        }
+
+        return mapDisplayableContractToContractResponse(contract);
     }
 }

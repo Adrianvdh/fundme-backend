@@ -16,7 +16,6 @@ export type ContractConnectorDetails = {
     keys: WalletKeys;
 };
 
-
 export enum ContractType {
     ERC1155 = 'ERC1155',
 }

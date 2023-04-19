@@ -98,6 +98,7 @@ export type DisplayableContract = Pick<
     | 'contractType'
     | 'contractAddress'
     | 'transactionHash'
+    | 'abi'
     | 'version'
     | 'createdOn'
     | 'updatedOn'

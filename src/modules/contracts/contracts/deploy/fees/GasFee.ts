@@ -1,13 +1,11 @@
-import { FeeData, JsonRpcProvider, TransactionRequest } from '@ethersproject/providers';
-import axios, { AxiosResponse } from 'axios';
-import { BigNumber, utils } from 'ethers';
+import { JsonRpcProvider, TransactionRequest } from '@ethersproject/providers';
+import { BigNumber } from 'ethers';
 import { Blockchain } from '@/shared/blockchain/model/blockchain.model';
 
-
-export type Fees = {
+export interface Fees {
     maxPriorityFeePerGas: BigNumber; // Max Priority Fee
     maxFeePerGas: BigNumber; // Max Fee Per Gas
-};
+}
 
 /**
  * Ethereum EIP 1559 Gas Fee calculator
@@ -43,39 +41,9 @@ export class GasFee {
     public async determineMaxFees(): Promise<Fees> {
         const feeData = await this.rpcProvider.getFeeData();
 
-        let fees = <Fees>{
+        return <Fees>{
             maxFeePerGas: feeData.maxFeePerGas.mul(150).div(100),
             maxPriorityFeePerGas: feeData.maxPriorityFeePerGas.mul(150).div(100),
         };
-
-        // https://github.com/ethers-io/ethers.js/issues/2828
-        if (this.blockchain === 'POLYGON') {
-            fees = await this.determinePolygonMaxFees(feeData, fees);
-        }
-        return fees;
-    }
-
-    private async determinePolygonMaxFees(feeData: FeeData, fees: Fees) {
-        try {
-            const fees = await axios({ method: 'GET', url: process.env.POLYGON_GAS_STATION_URL });
-            return {
-                maxFeePerGas: this.polyGonMaxFeePerGas(fees, feeData),
-                maxPriorityFeePerGas: this.maxPriorityFeePerGas(fees, feeData),
-            };
-        } catch (error) {
-            return fees;
-        }
-    }
-
-    private polyGonMaxFeePerGas(fees: AxiosResponse<any>, feeData: FeeData) {
-        return fees.data?.fast?.maxFee
-            ? utils.parseUnits(Math.ceil(fees.data.fast.maxFee).toString(), 'gwei')
-            : feeData.maxFeePerGas.mul(130).div(100);
-    }
-
-    private maxPriorityFeePerGas(fees: AxiosResponse<any>, feeData: FeeData) {
-        return fees.data?.fast?.maxFee
-            ? utils.parseUnits(Math.ceil(fees.data.fast.maxPriorityFee).toString(), 'gwei')
-            : feeData.maxPriorityFeePerGas.mul(130).div(100);
     }
 }
