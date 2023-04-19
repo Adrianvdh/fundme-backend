@@ -3,21 +3,20 @@ import {
     InitializePaymentRequest,
     mapDetailedPaymentToPaymentResponse,
     PaymentResponse,
-    VerifyPaymentRequest,
+    VerifyPaymentRequest
 } from '@/modules/payments/api/payment.model';
 import { CryptoPayment } from '@/modules/payments/payments/CryptoPayment';
-import { TransactionGenerator } from '@/modules/payments/transactions/TransactionGenerator';
 import { isEmpty } from '@/shared/utils/util';
 import { NotFound, ValidationError } from '@/shared/exceptions/exceptions';
 import { DetailedPayment, PaymentProvider, PaymentStatus } from '@/modules/payments/models/payment.interface';
 import { ObjectId } from 'mongodb';
-import { ITransactionRepository } from '@/modules/payments/repository/ITransactionRepository';
 import ProjectService from '@/modules/projects/service/project.service';
+import TransactionService from '@/modules/payments/transactions/transaction.service';
 
 class PaymentService {
     constructor(
         private paymentRepository: IPaymentRepository,
-        private transactionRepository: ITransactionRepository,
+        private transactionService: TransactionService,
         private projectService: ProjectService,
     ) {}
 
@@ -57,14 +56,19 @@ class PaymentService {
         return mapDetailedPaymentToPaymentResponse(payment, this.projectService);
     }
 
+    // TODO Refactor verify code to be cleaner
     public async verifyPayment(paymentId: string, requestData: VerifyPaymentRequest): Promise<PaymentResponse> {
         const payment = await this.paymentRepository.findOneById(paymentId);
+        if (payment.status === PaymentStatus.PAID) {
+            return mapDetailedPaymentToPaymentResponse(payment, this.projectService);
+        }
+
         // TODO Refactor into paymentitem resolver interface
         const projectContractAddress = await this.projectService.getProjectContractAddress(payment.item.id.toString());
 
         if (payment.paymentProvider === PaymentProvider.EXTERNAL_WALLET) {
-            const verifiablePayment = new CryptoPayment(payment.value.blockchain);
             try {
+                const verifiablePayment = new CryptoPayment(payment.value.blockchain);
                 await verifiablePayment.verify(requestData.transactionAddress, projectContractAddress, payment.value);
             } catch (e) {
                 const updatedPayment = await this.paymentRepository.markAsFailed(paymentId, {
@@ -76,10 +80,12 @@ class PaymentService {
         } else {
             throw new ValidationError('Payment provider not supported!');
         }
-        const rawTransactions = new TransactionGenerator().generateTransactions(payment);
-        const savedTransactions = await this.transactionRepository.saveBatch(paymentId, rawTransactions);
-        const transactionIds = savedTransactions.map(t => t._id);
-        const updatedPayment = await this.paymentRepository.updateVerificationState(paymentId, {
+        const { transactionIds } = await this.transactionService.saveFundTransactions(
+            payment,
+            requestData.transactionAddress,
+            projectContractAddress,
+        );
+        const updatedPayment = await this.paymentRepository.updateVerificationState(payment._id.toString(), {
             transactionIds,
             status: PaymentStatus.PAID,
         });

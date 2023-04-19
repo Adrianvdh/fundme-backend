@@ -29,7 +29,7 @@ export class PaymentRepository implements IPaymentRepository {
                     _id: new ObjectId(paymentId),
                 },
             },
-            ...paymentProjectionFactory(true, true),
+            ...paymentProjectionFactory(),
         ]);
 
         const result = await queryResult.toArray();
@@ -37,7 +37,7 @@ export class PaymentRepository implements IPaymentRepository {
     }
 
     async findAll(): Promise<DetailedPayment[]> {
-        const queryResult = await this.payments.aggregate<DetailedPayment>(paymentProjectionFactory());
+        const queryResult = await this.payments.aggregate<DetailedPayment>(paymentProjectionFactory(true, false));
 
         return await queryResult.toArray();
     }

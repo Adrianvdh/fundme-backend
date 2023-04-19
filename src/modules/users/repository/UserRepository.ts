@@ -23,8 +23,7 @@ export class UserRepository implements IUserRepository {
     }
 
     async findAll(): Promise<User[]> {
-        let newVar = await this.users.find().toArray();
-        return newVar;
+        return await this.users.find().toArray();
     }
 
     async create(user: UserDetails): Promise<User> {

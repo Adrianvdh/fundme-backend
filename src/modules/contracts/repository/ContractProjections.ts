@@ -14,3 +14,11 @@ export const contractProjection = {
     createdOn: 1,
     updatedOn: 1,
 };
+
+export const contractConnectorDetailsProjection = {
+    _id: 1,
+    blockchain: 1,
+    contractAddress: 1,
+    abi: 1,
+    keys: 1,
+};

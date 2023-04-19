@@ -112,7 +112,7 @@ export class ContractService {
     }
 
     public async getContractInstance(contractId: string): Promise<FundMeBlockchainContract> {
-        const modelContract = await this.contractRepository.findOneById(contractId);
+        const modelContract = await this.contractRepository.findOneContractConnectorDetailsById(contractId);
         const connector = new ContractConnector(modelContract);
         return connector.connectReadonly(FundMeBlockchainContract);
     }

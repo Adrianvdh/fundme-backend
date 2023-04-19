@@ -12,6 +12,6 @@ export const {
     LOG_FORMAT,
     LOG_DIR,
     ORIGIN,
-    RPC_URL,
-    WALLET_PRIVATE_KEY,
+    ETHEREUM_RPC_URL,
+    GNOSIS_RPC_URL,
 } = process.env;

@@ -11,6 +11,10 @@ import { IsEnum, IsMongoId, IsNumberString, IsString } from 'class-validator';
 import { ProjectResponse } from '@/modules/projects/api/project.model';
 import { ProjectPaymentResolver } from '@/modules/projects/service/ProjectPaymentResolver';
 import ProjectService from '@/modules/projects/service/project.service';
+import {
+    mapDisplayableTransactionToTransactionResponse,
+    TransactionResponse
+} from '@/modules/payments/api/transactions.model';
 
 export class InitializePaymentRequest {
     @IsNumberString()
@@ -49,28 +53,6 @@ export interface PaymentResponse {
     verified: string;
 }
 
-export interface TransactionResponse {
-    _id?: string;
-    paymentId: string;
-    source: {
-        userId: string;
-    };
-    destination: {
-        userId: string;
-    };
-    direction: 'IN' | 'OUT';
-    description: string;
-    payment: {
-        amount: number;
-        currency: Currency;
-        externalTransaction: string;
-        paymentProvider: PaymentProvider;
-    };
-    type: TransactionType;
-    createdOn: string;
-    updatedOn: string;
-}
-
 export async function mapDetailedPaymentToPaymentResponse(
     payment: DetailedPayment,
     projectService: ProjectService,
@@ -78,13 +60,17 @@ export async function mapDetailedPaymentToPaymentResponse(
     if (!payment) {
         return undefined;
     }
+    const mappedTransactions = payment?.transactions?.map(
+        async transaction => await mapDisplayableTransactionToTransactionResponse(transaction),
+    );
+    const transactions = mappedTransactions ? await Promise.all(mappedTransactions) : [];
     return {
         _id: payment._id.toString(),
         ownerId: payment.ownerId.toString(),
         status: payment?.status,
         failReason: payment?.failReason,
         value: payment?.value,
-        transactions: [],
+        transactions: transactions,
         item: await new ProjectPaymentResolver(projectService).resolve(payment?.item),
         initiated: payment?.initiated?.toISOString(),
         verified: payment?.verified?.toISOString(),

@@ -1,4 +1,5 @@
 import * as mongodb from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { MongoConnection } from '@/config/databases/mongodb';
 import { DatabaseConnection } from '@/config/databases/connection';
 import { Transaction } from '@/modules/payments/models/payment.interface';
@@ -13,7 +14,10 @@ export class TransactionRepository implements ITransactionRepository {
     }
 
     async findAllByPaymentId(paymentId: string): Promise<Transaction[]> {
-        return Promise.resolve([]);
+        const queryResult = await this.transactions.find<Transaction>({
+            paymentId: new ObjectId(paymentId),
+        });
+        return await queryResult.toArray();
     }
 
     async saveBatch(paymentId: string, transactions: Transaction[]): Promise<Transaction[]> {
@@ -23,6 +27,4 @@ export class TransactionRepository implements ITransactionRepository {
         }
         return await this.findAllByPaymentId(paymentId);
     }
-
-
 }

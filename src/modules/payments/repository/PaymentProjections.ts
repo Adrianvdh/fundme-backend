@@ -1,5 +1,6 @@
 import { userProjection } from '@/modules/users/repository/UserProjections';
 import { MongoDict } from '@/config/databases/types';
+import { transactionProjection } from '@/modules/payments/repository/TransactionProjections';
 
 export const paymentProjection = {
     _id: 1,
@@ -12,7 +13,7 @@ export const paymentProjection = {
     item: 1,
     timestamp: 1,
     owner: 1,
-    // transactions: 1,
+    transactions: 1,
 };
 
 const ownerIdProjection = [
@@ -37,7 +38,21 @@ const ownerIdProjection = [
     },
 ];
 
-const transactionsProjection = [];
+const transactionsProjection = [
+    {
+        $lookup: {
+            from: 'transactions',
+            localField: 'transactionIds',
+            foreignField: '_id',
+            pipeline: [
+                {
+                    $project: transactionProjection,
+                },
+            ],
+            as: 'transactions',
+        },
+    },
+];
 
 const basePaymentProjection = [
     {
@@ -51,9 +66,9 @@ export function paymentProjectionFactory(includeOwner = true, includeTransaction
     if (includeOwner) {
         query.push(...ownerIdProjection);
     }
-    // if (includeTransactions) {
-    //     query.push(...transactionsProjection);
-    // }
+    if (includeTransactions) {
+        query.push(...transactionsProjection);
+    }
     query.push(...basePaymentProjection);
     return query;
 }

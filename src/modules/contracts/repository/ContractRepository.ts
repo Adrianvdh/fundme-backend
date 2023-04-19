@@ -6,7 +6,10 @@ import { DatabaseConnection } from '@/config/databases/connection';
 import { IContractRepository } from '@/modules/contracts/repository/IContractRepository';
 import { Contract, IContractDeployment, IContractDetails } from '@/modules/contracts/models/contract.interface';
 import { MongoException } from '@/shared/exceptions/exceptions';
-import { contractProjection } from '@/modules/contracts/repository/ContractProjections';
+import {
+    contractConnectorDetailsProjection,
+    contractProjection
+} from '@/modules/contracts/repository/ContractProjections';
 
 export class ContractRepository implements IContractRepository {
     private readonly contracts: mongodb.Collection<Contract>;
@@ -24,6 +27,22 @@ export class ContractRepository implements IContractRepository {
             },
             {
                 $project: contractProjection,
+            },
+        ]);
+
+        const result = await queryResult.toArray();
+        return result.length === 1 ? result[0] : null;
+    }
+
+    async findOneContractConnectorDetailsById(contractId: string): Promise<Contract> {
+        const queryResult = await this.contracts.aggregate<Contract>([
+            {
+                $match: {
+                    _id: new ObjectId(contractId),
+                },
+            },
+            {
+                $project: contractConnectorDetailsProjection,
             },
         ]);
 

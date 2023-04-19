@@ -2,7 +2,7 @@ import {
     DetailedPayment,
     FailedPayment,
     InitialPayment,
-    PaymentVerified
+    PaymentVerified,
 } from '@/modules/payments/models/payment.interface';
 
 export interface IPaymentRepository {

@@ -27,8 +27,6 @@ export interface PaymentItem {
     type: 'PROJECT';
 }
 
-export type TransactionType = 'FEE' | 'PAYMENT' | 'WITHDRAWAL';
-
 export interface Payment {
     _id?: ObjectId;
     ownerId: ObjectId;
@@ -54,25 +52,48 @@ export type DetailedPayment = Payment & {
 };
 
 export interface Transaction {
-    _id: ObjectId;
+    _id?: ObjectId;
     paymentId: ObjectId;
+    item: PaymentItem;
     source: {
-        userId: ObjectId;
+        id: ObjectId;
+        type: 'USER' | 'CONTRACT';
     };
     destination: {
-        userId: ObjectId;
+        id: ObjectId;
+        type: 'USER' | 'CONTRACT';
     };
     direction: 'IN' | 'OUT';
     description: string;
     payment: {
         amount: number;
         currency: Currency;
-        externalTransaction: string;
         paymentProvider: PaymentProvider;
+        transactionHash: string;
+        contractAddress: string;
     };
     type: TransactionType;
     createdOn: Date;
     updatedOn: Date;
 }
 
-export type DisplayableTransaction = Pick<Transaction, '_id'>;
+export interface TransactionResult {
+    transactionIds: ObjectId[];
+}
+
+export type TransactionType = 'FEE' | 'PAYMENT' | 'WITHDRAWAL';
+
+export type DisplayableTransaction = Pick<
+    Transaction,
+    | '_id'
+    | 'paymentId'
+    | 'item'
+    | 'source'
+    | 'destination'
+    | 'direction'
+    | 'description'
+    | 'payment'
+    | 'type'
+    | 'createdOn'
+    | 'updatedOn'
+>;

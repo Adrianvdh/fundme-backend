@@ -8,6 +8,7 @@ import { PaymentRepository } from '@/modules/payments/repository/PaymentReposito
 import { TransactionRepository } from '@/modules/payments/repository/TransactionRepository';
 import { DatabaseConnection } from '@/config/databases/connection';
 import { projectServiceFactory } from '@/modules/projects/project.module';
+import TransactionService from '@/modules/payments/transactions/transaction.service';
 
 export function paymentServiceFactory(databaseConnection: DatabaseConnection): {
     paymentService: PaymentService;
@@ -16,9 +17,12 @@ export function paymentServiceFactory(databaseConnection: DatabaseConnection): {
 } {
     const paymentRepository = new PaymentRepository(databaseConnection);
     const transactionRepository = new TransactionRepository(databaseConnection);
-    // Payment Service
+    // Transaction Service
+    const transactionService = new TransactionService(transactionRepository);
+    // Project Service
     const { userRepository, projectService } = projectServiceFactory(databaseConnection);
-    const paymentService = new PaymentService(paymentRepository, transactionRepository, projectService);
+    // Payment Service
+    const paymentService = new PaymentService(paymentRepository, transactionService, projectService);
     return { paymentService, paymentRepository, userRepository };
 }
 

@@ -2,7 +2,7 @@ import { Blockchain } from '@/shared/blockchain/model/blockchain.model';
 import { ethers } from 'ethers';
 import { rpcUrlFromBlockchain } from '@/config/rpc/rpcGateway';
 import { BaseException } from '@/shared/exceptions/exceptions';
-import { TransactionReceipt } from '@ethersproject/abstract-provider';
+import { TransactionReceipt, TransactionResponse } from '@ethersproject/abstract-provider';
 import { Currency, MonetaryAmount } from '@/modules/payments/models/payment.interface';
 
 export class VerificationException extends BaseException {
@@ -30,7 +30,7 @@ export class CryptoPayment {
         transactionHash: string,
         contractAddress: string,
         monetaryAmount: MonetaryAmount,
-    ): Promise<TransactionReceipt> {
+    ): Promise<TransactionResponse> {
         const receipt = await this.provider.waitForTransaction(transactionHash, this.MIN_BLOCK_CONFIRMATIONS);
         const transactionResponse = await this.provider.getTransaction(transactionHash);
 
@@ -48,12 +48,12 @@ export class CryptoPayment {
                 monetaryAmount.amount.toString(),
                 this.ROUNDING_DECIMALS,
             );
-            if (!transactionResponse.value.eq(amountFromOffChainRecords))
-                throw new Error(
+            if (!transactionResponse.value.eq(amountFromOffChainRecords)) {
+                throw new VerificationException(
                     `Amount mismatch, amountFromOffChainRecords: ${amountFromOffChainRecords.toNumber()}, transaction: ${transactionResponse.value.toNumber()}`,
                 );
-            return;
+            }
         }
-        return receipt;
+        return transactionResponse;
     }
 }
