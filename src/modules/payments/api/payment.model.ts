@@ -3,7 +3,7 @@ import {
     DetailedPayment,
     MonetaryAmount,
     PaymentProvider,
-    PaymentStatus,
+    PaymentStatus, PaymentType,
     TransactionType
 } from '@/modules/payments/models/payment.interface';
 import { Blockchain } from '@/shared/blockchain/model/blockchain.model';
@@ -13,7 +13,7 @@ import { ProjectPaymentResolver } from '@/modules/projects/service/ProjectPaymen
 import ProjectService from '@/modules/projects/service/project.service';
 import {
     mapDisplayableTransactionToTransactionResponse,
-    TransactionResponse
+    TransactionResponse,
 } from '@/modules/payments/api/transactions.model';
 
 export class InitializePaymentRequest {
@@ -28,6 +28,9 @@ export class InitializePaymentRequest {
 
     @IsEnum(PaymentProvider)
     paymentProvider: PaymentProvider;
+
+    @IsEnum(PaymentType)
+    paymentType: PaymentType;
 
     @IsMongoId()
     itemId: string;

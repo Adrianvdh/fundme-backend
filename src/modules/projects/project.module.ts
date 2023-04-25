@@ -8,6 +8,7 @@ import { ProjectRepository } from '@/modules/projects/repository/ProjectReposito
 import { NoopStorageService } from '@/shared/storage/noopStorage';
 import { DatabaseConnection } from '@/config/databases/connection';
 import { contractServiceFactory } from '@/modules/contracts/contract.module';
+import { userServiceFactory } from '@/modules/users/user.module';
 
 export function projectServiceFactory(databaseConnection: DatabaseConnection): {
     projectService: ProjectService;
@@ -17,8 +18,14 @@ export function projectServiceFactory(databaseConnection: DatabaseConnection): {
     const projectRepository = new ProjectRepository(databaseConnection);
     // Contract Service
     const { contractService, userRepository } = contractServiceFactory(databaseConnection);
+    const { userService } = userServiceFactory(databaseConnection);
     // Project Service
-    const projectService = new ProjectService(projectRepository, contractService, new NoopStorageService());
+    const projectService = new ProjectService(
+        projectRepository,
+        contractService,
+        userService,
+        new NoopStorageService(),
+    );
     return { projectService, projectRepository, userRepository };
 }
 

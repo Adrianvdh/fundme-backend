@@ -47,6 +47,7 @@ export class PaymentRepository implements IPaymentRepository {
             ownerId: new ObjectId(ownerId),
             status: PaymentStatus.INITIATED,
             paymentProvider: payment.paymentProvider,
+            paymentType: payment.paymentType,
             value: payment.value,
             transactionIds: [],
             item: {

@@ -8,7 +8,12 @@ import {
 import { CryptoPayment } from '@/modules/payments/payments/CryptoPayment';
 import { isEmpty } from '@/shared/utils/util';
 import { NotFound, ValidationError } from '@/shared/exceptions/exceptions';
-import { DetailedPayment, PaymentProvider, PaymentStatus } from '@/modules/payments/models/payment.interface';
+import {
+    DetailedPayment,
+    PaymentProvider,
+    PaymentStatus,
+    PaymentType
+} from '@/modules/payments/models/payment.interface';
 import { ObjectId } from 'mongodb';
 import ProjectService from '@/modules/projects/service/project.service';
 import TransactionService from '@/modules/payments/transactions/transaction.service';
@@ -47,6 +52,7 @@ class PaymentService {
                 blockchain: requestData.blockchain,
             },
             paymentProvider: requestData.paymentProvider,
+            paymentType: requestData.paymentType,
             // TODO Create item resolver to get the project contract details and return in response
             item: {
                 id: new ObjectId(requestData.itemId),
@@ -57,19 +63,30 @@ class PaymentService {
     }
 
     // TODO Refactor verify code to be cleaner
+    /**
+     * Verify crypto payment.
+     * 1. Verify payment to projectContractAddress
+     * 2. Verify payment to projectOwnerAddress
+     * @param paymentId
+     * @param requestData
+     */
     public async verifyPayment(paymentId: string, requestData: VerifyPaymentRequest): Promise<PaymentResponse> {
         const payment = await this.paymentRepository.findOneById(paymentId);
         if (payment.status === PaymentStatus.PAID) {
             return mapDetailedPaymentToPaymentResponse(payment, this.projectService);
         }
-
-        // TODO Refactor into paymentitem resolver interface
-        const projectContractAddress = await this.projectService.getProjectContractAddress(payment.item.id.toString());
-
+        let contractAddress: string;
+        const projectId = payment.item.id.toString();
+        if (payment.paymentType === PaymentType.FUND) {
+            contractAddress = await this.projectService.getProjectContractAddress(projectId);
+        }
+        if (payment.paymentType === PaymentType.WITHDRAWAL) {
+            contractAddress = await this.projectService.getProjectOwnerAddress(projectId);
+        }
         if (payment.paymentProvider === PaymentProvider.EXTERNAL_WALLET) {
             try {
                 const verifiablePayment = new CryptoPayment(payment.value.blockchain);
-                await verifiablePayment.verify(requestData.transactionAddress, projectContractAddress, payment.value);
+                await verifiablePayment.verify(requestData.transactionAddress, contractAddress, payment.value);
             } catch (e) {
                 const updatedPayment = await this.paymentRepository.markAsFailed(paymentId, {
                     status: PaymentStatus.FAILED,
@@ -83,7 +100,7 @@ class PaymentService {
         const { transactionIds } = await this.transactionService.saveFundTransactions(
             payment,
             requestData.transactionAddress,
-            projectContractAddress,
+            contractAddress,
         );
         const updatedPayment = await this.paymentRepository.updateVerificationState(payment._id.toString(), {
             transactionIds,

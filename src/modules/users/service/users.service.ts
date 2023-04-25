@@ -105,6 +105,17 @@ class UserService {
 
         await this.userRepository.deleteOne(userId);
     }
+
+    public async getUserWalletAddress(userId: string): Promise<string> {
+        if (isEmpty(userId)) {
+            throw new ValidationError('Empty request!');
+        }
+        const user: User = await this.userRepository.findOneById(userId);
+        if (!user) {
+            throw new NotFound("User doesn't exist");
+        }
+        return user.wallet.address;
+    }
 }
 
 export default UserService;

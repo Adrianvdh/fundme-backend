@@ -1,8 +1,6 @@
 import { UserRepository } from '@/modules/users/repository/UserRepository';
 import { Routes } from '@/shared/framework/routes.interface';
 import { Module } from '@/shared/framework/module';
-import ProjectRoutes from '@/modules/projects/api/project.routes';
-import ProjectController from '@/modules/projects/api/project.controller';
 import { DatabaseConnection } from '@/config/databases/connection';
 import { ContractService } from '@/modules/contracts/service/contract.service';
 import { ContractRepository } from '@/modules/contracts/repository/ContractRepository';

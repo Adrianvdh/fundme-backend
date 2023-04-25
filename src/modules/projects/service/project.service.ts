@@ -11,11 +11,13 @@ import { DetailedProject, Project, ProjectStatus } from '@/modules/projects/mode
 import { IStorageService } from '@/shared/storage/storage';
 import { File } from '@/shared/http/file';
 import { ContractService } from '@/modules/contracts/service/contract.service';
+import UserService from '@/modules/users/service/users.service';
 
 class ProjectService {
     constructor(
         private projectRepository: IProjectRepository,
         private contractService: ContractService,
+        private userService: UserService,
         private storageService: IStorageService,
     ) {}
 
@@ -124,6 +126,14 @@ class ProjectService {
             throw new NotFound("Project doesn't exist");
         }
         return (await this.contractService.getContractInstance(project.contractId.toString())).address();
+    }
+
+    public async getProjectOwnerAddress(projectId: string): Promise<string> {
+        const project: Project = await this.projectRepository.findOneById(projectId);
+        if (!project) {
+            throw new NotFound("Project doesn't exist");
+        }
+        return (await this.userService.getUserWalletAddress(project.ownerId.toString()));
     }
 }
 

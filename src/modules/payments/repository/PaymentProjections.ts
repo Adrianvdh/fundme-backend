@@ -8,6 +8,7 @@ export const paymentProjection = {
     status: 1,
     failReason: 1,
     paymentProvider: 1,
+    paymentType: 1,
     value: 1,
     transactionIds: 1,
     item: 1,

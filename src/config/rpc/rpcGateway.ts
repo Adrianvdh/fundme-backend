@@ -7,7 +7,7 @@ export function rpcUrlFromBlockchain(blockchain: Blockchain) {
             return ETHEREUM_RPC_URL;
         }
         case 'GNOSIS': {
-            return 'https://rpc.chiado.gnosis.gateway.fm';
+            return GNOSIS_RPC_URL;
         }
     }
 }

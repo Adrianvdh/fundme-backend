@@ -2,7 +2,7 @@ import { Blockchain } from '@/shared/blockchain/model/blockchain.model';
 import { ethers } from 'ethers';
 import { rpcUrlFromBlockchain } from '@/config/rpc/rpcGateway';
 import { BaseException } from '@/shared/exceptions/exceptions';
-import { TransactionReceipt, TransactionResponse } from '@ethersproject/abstract-provider';
+import { TransactionResponse } from '@ethersproject/abstract-provider';
 import { Currency, MonetaryAmount } from '@/modules/payments/models/payment.interface';
 
 export class VerificationException extends BaseException {
@@ -12,7 +12,7 @@ export class VerificationException extends BaseException {
 }
 
 export class CryptoPayment {
-    private readonly MIN_BLOCK_CONFIRMATIONS = 10;
+    private readonly MIN_BLOCK_CONFIRMATIONS = 5;
     private readonly ROUNDING_DECIMALS = 18;
     private readonly provider: ethers.providers.JsonRpcProvider;
 

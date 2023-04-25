@@ -9,8 +9,7 @@ export class FundMeBlockchainContract extends BlockchainContract implements IFun
     }
 
     async withdraw(amount: string) {
-        const amountBigNumber = ethers.utils.parseEther(amount);
-        await this.contract.withdraw({ value: amountBigNumber });
+        await this.contract.withdraw();
     }
 
     getFunder(index: number): string {

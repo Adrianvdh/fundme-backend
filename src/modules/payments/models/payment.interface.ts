@@ -22,6 +22,11 @@ export enum PaymentStatus {
     FAILED = 'FAILED',
 }
 
+export enum PaymentType {
+    FUND = 'FUND',
+    WITHDRAWAL = 'WITHDRAWAL',
+}
+
 export interface PaymentItem {
     id: ObjectId;
     type: 'PROJECT';
@@ -33,6 +38,7 @@ export interface Payment {
     status: PaymentStatus;
     failReason?: string;
     paymentProvider: PaymentProvider;
+    paymentType: PaymentType;
     value: MonetaryAmount;
     transactionIds: Array<ObjectId>;
     item: PaymentItem;
@@ -40,7 +46,7 @@ export interface Payment {
     verified?: Date;
 }
 
-export type InitialPayment = Pick<Payment, 'value' | 'paymentProvider' | 'item'>;
+export type InitialPayment = Pick<Payment, 'value' | 'paymentProvider' | 'paymentType' | 'item'>;
 
 export type PaymentVerified = Pick<Payment, 'transactionIds' | 'status'>;
 

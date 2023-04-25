@@ -1292,15 +1292,13 @@ contract FundMe is ERC1155, Ownable, Pausable {
         _nextMintId++;
     }
 
-    function withdraw(uint256 amount) public onlyOwner {
+    function withdraw() public onlyOwner {
         uint256 contractBalance = address(this).balance;
-        uint256 actualAmount = amount * 10 ** 18;
-        require(contractBalance >= actualAmount, "Contract balance must be higher than withdrawal amount");
 
-        (bool success, ) = payable(owner()).call{value: actualAmount}("");
+        (bool success, ) = payable(owner()).call{value: contractBalance}("");
         require(success, "Send failed!");
 
-        emit Withdrawn(msg.sender, actualAmount);
+        emit Withdrawn(msg.sender, contractBalance);
     }
 
     // Explainer from: https://solidity-by-example.org/fallback/

@@ -127,6 +127,9 @@ export class ContractService {
             throw new NotFound("Contract doesn't exist");
         }
 
-        return mapDisplayableContractToContractResponse(contract);
+        const fundMeContract = await this.getContractInstance(contractId);
+        const balance = await fundMeContract.balance();
+
+        return mapDisplayableContractToContractResponse(contract, balance.toString());
     }
 }
