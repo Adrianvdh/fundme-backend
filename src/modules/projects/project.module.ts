@@ -25,8 +25,8 @@ export function projectServiceFactory(databaseConnection: DatabaseConnection): {
 export class ProjectModule extends Module {
     public routes: Routes;
 
-    protected setup() {
-        const { userRepository, projectRepository, projectService } = projectServiceFactory(this.databaseConnection);
+    public setup(databaseConnection: DatabaseConnection) {
+        const { userRepository, projectRepository, projectService } = projectServiceFactory(databaseConnection);
         const projectController = new ProjectController(projectService);
 
         this.routes = new ProjectRoutes(projectController, projectRepository, userRepository);

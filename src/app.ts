@@ -9,7 +9,7 @@ import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import { CREDENTIALS, LOG_FORMAT, NODE_ENV, ORIGIN, PORT } from '@config';
 import { logger, stream } from '@/shared/utils/logger';
-import { Module } from './shared/framework/module';
+import { Module } from '@shared/framework/module';
 import { Constructable } from '@/shared/types';
 import { MongoConfig } from '@/config/databases/mongodb';
 import { DatabaseConnection } from '@/config/databases/connection';
@@ -64,6 +64,7 @@ class App {
     private initializeModules(modules: Constructable<Module>[]) {
         modules.forEach(ModuleClass => {
             const moduleObj = new ModuleClass(this.databaseConnection);
+            moduleObj.setup(this.databaseConnection);
             if (moduleObj.routerEnabled) {
                 this.app.use('/api/', moduleObj.routes.router);
             }

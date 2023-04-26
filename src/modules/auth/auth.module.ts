@@ -23,8 +23,8 @@ export function authServiceFactory(databaseConnection: DatabaseConnection): {
 export class AuthModule extends Module {
     public routes: Routes;
 
-    protected setup() {
-        const { authService, userService, userRepository } = authServiceFactory(this.databaseConnection);
+    public setup(databaseConnection: DatabaseConnection) {
+        const { authService, userService, userRepository } = authServiceFactory(databaseConnection);
         const controller = new AuthController(authService, userService);
         this.routes = new AuthRoutes(controller, userRepository);
     }

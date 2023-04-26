@@ -1,18 +1,17 @@
-import { Router } from 'express';
 import UsersController from '@/modules/users/api/users.controller';
 import { Routes } from '@/shared/framework/routes.interface';
 import validated from '@/shared/http/middlewares/validate-body.middleware';
 import authMiddleware from '@/modules/auth/middleware/auth.middleware';
+import authenticated from '@/modules/auth/middleware/auth.middleware';
 import { UserRepository } from '@/modules/users/repository/UserRepository';
 import { CreateUserRequest } from '@/modules/users/api/users.model';
-import authenticated from '@/modules/auth/middleware/auth.middleware';
 import { singleFileUpload } from '@/shared/http/middlewares/file.middleware';
 
-class UsersRoutes implements Routes {
+class UsersRoutes extends Routes {
     public path = '/users';
-    public router = Router();
 
     constructor(private usersController: UsersController, private userRepository: UserRepository) {
+        super();
         this.initializeRoutes();
     }
 

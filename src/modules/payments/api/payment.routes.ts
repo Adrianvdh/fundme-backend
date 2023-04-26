@@ -1,4 +1,3 @@
-import { Router } from 'express';
 import { Routes } from '@/shared/framework/routes.interface';
 import validated from '@/shared/http/middlewares/validate-body.middleware';
 import authenticated from '@/modules/auth/middleware/auth.middleware';
@@ -7,15 +6,15 @@ import PaymentController from '@/modules/payments/api/payment.controller';
 import { PaymentRepository } from '@/modules/payments/repository/PaymentRepository';
 import { InitializePaymentRequest, VerifyPaymentRequest } from '@/modules/payments/api/payment.model';
 
-class PaymentRoutes implements Routes {
+class PaymentRoutes extends Routes {
     public path = '/payments';
-    public router = Router();
 
     constructor(
         private paymentController: PaymentController,
         private paymentRepository: PaymentRepository,
         private userRepository: UserRepository,
     ) {
+        super();
         this.initializeRoutes();
     }
 

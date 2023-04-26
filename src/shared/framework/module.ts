@@ -9,5 +9,5 @@ export abstract class Module {
         this.setup(databaseConnection);
     }
 
-    protected abstract setup(databaseConnection: DatabaseConnection);
+    public abstract setup(databaseConnection: DatabaseConnection);
 }

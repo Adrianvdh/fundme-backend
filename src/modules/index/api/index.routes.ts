@@ -1,12 +1,11 @@
-import { Router } from 'express';
 import IndexController from '@/modules/index/api/index.controller';
 import { Routes } from '@/shared/framework/routes.interface';
 
-class IndexRoute implements Routes {
+class IndexRoutes extends Routes {
     public path = '/';
-    public router = Router();
 
     constructor(private indexController: IndexController) {
+        super();
         this.initializeRoutes();
     }
 
@@ -15,4 +14,4 @@ class IndexRoute implements Routes {
     }
 }
 
-export default IndexRoute;
+export default IndexRoutes;

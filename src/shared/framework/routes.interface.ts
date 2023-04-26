@@ -1,6 +1,12 @@
 import { Router } from 'express';
 
-export interface Routes {
+export abstract class Routes {
     path?: string;
-    router: Router;
+    public router: Router;
+
+    protected constructor() {
+        this.router = Router({
+            strict: true,
+        });
+    }
 }

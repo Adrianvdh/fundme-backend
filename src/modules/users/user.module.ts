@@ -20,8 +20,8 @@ export function userServiceFactory(databaseConnection: DatabaseConnection): {
 export class UserModule extends Module {
     public routes: Routes;
 
-    protected setup() {
-        const { userService, userRepository } = userServiceFactory(this.databaseConnection);
+    public setup(databaseConnection: DatabaseConnection) {
+        const { userService, userRepository } = userServiceFactory(databaseConnection);
         const controller = new UsersController(userService);
 
         this.routes = new UsersRoutes(controller, userRepository);

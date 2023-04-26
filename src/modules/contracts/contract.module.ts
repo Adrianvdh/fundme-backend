@@ -30,8 +30,8 @@ export function contractServiceFactory(databaseConnection: DatabaseConnection): 
 export class ContractModule extends Module {
     public routes: Routes;
 
-    protected setup() {
-        const { contractService, userRepository } = contractServiceFactory(this.databaseConnection);
+    public setup(databaseConnection: DatabaseConnection) {
+        const { contractService, userRepository } = contractServiceFactory(databaseConnection);
         const contractController = new ContractController(contractService);
 
         this.routes = new ContractRoutes(contractController, userRepository);

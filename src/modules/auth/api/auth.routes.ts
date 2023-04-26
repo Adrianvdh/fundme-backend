@@ -1,4 +1,3 @@
-import { Router } from 'express';
 import AuthController from '@/modules/auth/api/auth.controller';
 import { Routes } from '@/shared/framework/routes.interface';
 import validated from '@/shared/http/middlewares/validate-body.middleware';
@@ -6,11 +5,11 @@ import { UserRepository } from '@/modules/users/repository/UserRepository';
 import { CreateUserRequest } from '@/modules/users/api/users.model';
 import { LoginRequest } from '@/modules/auth/api/auth.models';
 
-class AuthRoutes implements Routes {
+class AuthRoutes extends Routes {
     public path = '/';
-    public router = Router();
 
     constructor(private authController: AuthController, private userRepository: UserRepository) {
+        super();
         this.initializeRoutes();
     }
 

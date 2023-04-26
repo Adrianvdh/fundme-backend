@@ -29,8 +29,8 @@ export function paymentServiceFactory(databaseConnection: DatabaseConnection): {
 export class PaymentModule extends Module {
     public routes: Routes;
 
-    protected setup() {
-        const { userRepository, paymentRepository, paymentService } = paymentServiceFactory(this.databaseConnection);
+    public setup(databaseConnection: DatabaseConnection) {
+        const { userRepository, paymentRepository, paymentService } = paymentServiceFactory(databaseConnection);
 
         const paymentController = new PaymentController(paymentService);
         this.routes = new PaymentRoutes(paymentController, paymentRepository, userRepository);

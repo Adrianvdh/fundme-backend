@@ -1,14 +1,13 @@
-import { Router } from 'express';
 import { Routes } from '@/shared/framework/routes.interface';
 import ContractController from '@/modules/contracts/api/contract.controller';
 import authenticated from '@/modules/auth/middleware/auth.middleware';
 import { UserRepository } from '@/modules/users/repository/UserRepository';
 
-class ContractRoutes implements Routes {
+class ContractRoutes extends Routes {
     public path = '/contracts';
-    public router = Router();
 
     constructor(private contractController: ContractController, private userRepository: UserRepository) {
+        super();
         this.initializeRoutes();
     }
 

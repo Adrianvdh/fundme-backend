@@ -1,4 +1,3 @@
-import { Router } from 'express';
 import { Routes } from '@/shared/framework/routes.interface';
 import validated from '@/shared/http/middlewares/validate-body.middleware';
 import authenticated from '@/modules/auth/middleware/auth.middleware';
@@ -8,15 +7,15 @@ import { ProjectRepository } from '@/modules/projects/repository/ProjectReposito
 import { SaveProjectDetailsRequest, SaveProjectFundGoalRequest } from '@/modules/projects/api/project.model';
 import { singleFileUpload } from '@/shared/http/middlewares/file.middleware';
 
-class ProjectRoutes implements Routes {
+class ProjectRoutes extends Routes {
     public path = '/projects';
-    public router = Router();
 
     constructor(
         private projectController: ProjectController,
         private projectRepository: ProjectRepository,
         private userRepository: UserRepository,
     ) {
+        super();
         this.initializeRoutes();
     }
 
