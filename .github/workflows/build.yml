@@ -1,0 +1,25 @@
+name: Build on PR creation
+on:
+  pull_request:
+    branches: [ "develop" ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+
+    - name: Setup Node.js Environment
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16.x'
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Test
+      run: npm test
+
+    - name: Build
+      run: npm build
