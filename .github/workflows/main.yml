@@ -20,6 +20,12 @@ jobs:
     - name: Install Dependencies
       run: npm ci
 
+    - name: Test
+      run: npm test
+
+    - name: Build
+      run: npm build
+
     - name: Generate deployment package
       run: zip -r deploy.zip . -x '*.git*' . -x 'node_modules*'
 
@@ -27,7 +33,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: app
-        path: .
+        path: deploy.zip
 
   deploy:
     needs: build
@@ -39,6 +45,9 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: app
+
+    - name: unzip artifact for deployment
+      run: unzip deploy.zip
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
