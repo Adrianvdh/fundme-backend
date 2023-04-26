@@ -1,7 +1,7 @@
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import express from 'express';
+import express, { Router } from 'express';
 import helmet from 'helmet';
 import hpp from 'hpp';
 import morgan from 'morgan';
@@ -69,6 +69,13 @@ class App {
                 this.app.use('/api/', moduleObj.routes.router);
             }
         });
+        const router = Router({
+            strict: true,
+        });
+        router.get('/', (req, res) => {
+            res.sendStatus(200);
+        });
+        this.app.use('/', router);
     }
 
     private initializeSwagger() {

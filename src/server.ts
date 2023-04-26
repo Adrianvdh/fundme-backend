@@ -1,6 +1,5 @@
 import App from '@/app';
 import validateEnv from '@/shared/utils/validateEnv';
-import IndexModule from '@/modules/index';
 import AuthModule from '@/modules/auth';
 import PaymentModule from '@/modules/payments';
 import ProjectModule from '@/modules/projects';
@@ -10,5 +9,5 @@ import ContractModule from '@/modules/contracts';
 validateEnv();
 
 const app = new App();
-app.setup([IndexModule, AuthModule, ContractModule, PaymentModule, ProjectModule, UserModule]);
+app.setup([AuthModule, ContractModule, PaymentModule, ProjectModule, UserModule]);
 app.listen();
