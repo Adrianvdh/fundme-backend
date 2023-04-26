@@ -21,7 +21,7 @@ jobs:
       run: npm ci
 
     - name: Generate deployment package
-      run: zip -r deploy.zip . -x '*.git*'
+      run: zip -r deploy.zip . -x '*.git*' . -x 'node_modules*'
 
     - name: Archive Application
       uses: actions/upload-artifact@v2
