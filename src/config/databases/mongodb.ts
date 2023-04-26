@@ -1,6 +1,6 @@
 import * as mongodb from 'mongodb';
 import { ConnectionDetails, DatabaseConnection } from '@/config/databases/connection';
-import { DB_DATABASE, DB_HOST, DB_PORT } from '@config';
+import { DATABASE_CONNECTION_STRING } from '@config';
 
 export class MongoConnection extends DatabaseConnection {
     public db: mongodb.Db;
@@ -17,8 +17,7 @@ export class MongoConfig {
     private db: mongodb.Db;
 
     public async connect(): Promise<DatabaseConnection> {
-        const url = `mongodb://${DB_HOST}:${DB_PORT}/${DB_DATABASE}`;
-        this.client = await mongodb.MongoClient.connect(url);
+        this.client = await mongodb.MongoClient.connect(DATABASE_CONNECTION_STRING);
         this.db = await this.client.db(process.env.DB_NAME);
         return new MongoConnection({ db: this.db, client: this.client });
     }
